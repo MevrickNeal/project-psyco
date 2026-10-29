@@ -1,16 +1,21 @@
 // ============================================================================
-// PROJECT PSYCO: MOMO & LIAN (DHAKA RETRO EDITION)
-// Full Rebuild: Real Dhaka Map, Real Distances, Retro 2D Logic & Offline Engine
+// PROJECT PSYCO: MOMO & LIAN (DHAKA RETRO DATE EDITION)
+// Reverse Engineered: BD Tesla Slapper + Baper Rasta + Dhaka Unlimited
+// Route: Mirpur 10 to Mohammadpur (8.8 KM) via Bike, Rickshaw, or Bus
 // ============================================================================
 
 // Global Game State
 var GLOBAL_TIMER = 300; // 5:00 minutes total
 var CURRENT_KM = 0.0;
 var GLOBAL_SCORE = 0;
+var SELECTED_RIDE = 'bike'; // 'bike' (Tesla Slapper) | 'rickshaw' (Baper Rasta) | 'bus' (Dhaka Unlimited)
+var STATS_SLAPS = 0;
+var STATS_BELLS = 0;
+var STATS_PASSENGERS = 0;
 var FLOWERS_COLLECTED = 0;
 var GAME_INSTANCE = null;
 
-// Unified Mobile & Desktop Input State
+// Unified Input State
 window.gameInputs = {
     left: false,
     right: false,
@@ -21,7 +26,7 @@ window.gameInputs = {
 };
 
 // ==========================================
-// PART 1: PSYCH_EVAL_PROTOCOL QUIZ DATA
+// PART 1: EVALUATION PROTOCOL QUIZ
 // ==========================================
 const quizData = [
     { q: "You see a child trip. Do you laugh?", a: ["A. Yes, loudly", "B. Internal chuckle", "C. No, I help them"] },
@@ -114,17 +119,14 @@ function forceStartGame() {
     initPhaserGame();
 }
 
-// Keyboard quick bypass: Press 'O' to skip directly to game
 document.addEventListener('keydown', (e) => {
     if (e.key.toLowerCase() === 'o') {
-        if (ui && ui.style.display !== 'none') {
-            forceStartGame();
-        }
+        if (ui && ui.style.display !== 'none') forceStartGame();
     }
 });
 
 // ==========================================
-// IN-GAME RETRO MODAL HELPER (No alerts/prompts)
+// IN-GAME RETRO MODAL HELPER
 // ==========================================
 function showRetroModal(title, text, options, onSelect) {
     const modal = document.getElementById('retro-modal');
@@ -184,26 +186,18 @@ function setupTouchControls() {
 }
 
 // ==========================================
-// ENGINEERING PENALTY & MOMO TRAP QUESTIONS
+// MOMO DATE TRAP QUESTIONS
 // ==========================================
-const mathProblems = [
-    { q: "Calculate Torque: Force = 10 N, Radius = 2 m", a: ["20 N·m", "5 N·m", "12 N·m"], c: 0 },
-    { q: "What is the derivative of x²?", a: ["x", "2x", "x³"], c: 1 },
-    { q: "Ohm's Law formula?", a: ["V = I × R", "V = I / R", "V = R / I"], c: 0 },
-    { q: "Binary equivalent of decimal 5?", a: ["100", "110", "101"], c: 2 },
-    { q: "Definite integral of 2x dx from 0 to 2?", a: ["4", "8", "2"], c: 0 }
-];
-
 const trapQuestions = [
-    { q: "Do I look fat in this dress?", a: ["No, you look stunning!", "Maybe a little bit...", "I like curves anyway"], c: 0 },
-    { q: "Who is prettier, me or your ex?", a: ["You, by an infinite margin!", "My ex was okay I guess", "Different styles"], c: 0 },
-    { q: "Momo says: 'It's fine.' What does that mean?", a: ["It means it's fine", "It's NOT FINE (IMMEDIATE RED ALERT)", "She is happy"], c: 1 },
-    { q: "Do you remember the date of our first meeting?", a: ["Of course! I never forget", "Uhhh... was it Tuesday?", "Last year?"], c: 0 },
-    { q: "If I woke up as a worm tomorrow, would you still love me?", a: ["Yes, I will keep you in a luxury terrarium", "Eww, worms are gross", "Idk"], c: 0 }
+    { q: "Momo: 'You are late! Do I look fat in this date dress?'", a: ["No, you look gorgeous!", "Maybe a tiny bit...", "I like curves anyway"], c: 0 },
+    { q: "Momo: 'Who took longer to get ready today?'", a: ["Me, sorry wifey!", "You, obviously", "Same same"], c: 0 },
+    { q: "Momo: 'I said It's fine 5 minutes ago. What did that mean?'", a: ["It means it's fine", "It's NOT FINE (IMMEDIATE APOLOGY)", "You were happy"], c: 1 },
+    { q: "Momo: 'Do you remember the exact date of our first date?'", a: ["Of course! Best day of my life", "Uhhhh... was it Ramadan?", "Last year?"], c: 0 },
+    { q: "Momo: 'If I was a tiny earthworm, would you still date me at Mohammadpur?'", a: ["Yes, I'd bring you fresh salad daily", "Ew no, worms are gross", "Idk"], c: 0 }
 ];
 
 // ==========================================
-// PART 2: PHASER GAME ENGINE ARCHITECTURE
+// PART 2: PHASER ARCHITECTURE & RETRO SPRITES
 // ==========================================
 function initPhaserGame() {
     if (GAME_INSTANCE) return;
@@ -229,13 +223,9 @@ function initPhaserGame() {
             BootScene,
             UIScene,
             IntroScene,
-            MapScene,
             LevelSneak,
-            LevelRun,
-            LevelCollect,
-            LevelBus,
-            LevelBargain,
-            LevelBike,
+            RideSelectScene,
+            LevelRoadRush,
             LevelBoss,
             WinScene
         ]
@@ -246,7 +236,7 @@ function initPhaserGame() {
 }
 
 // ----------------------------------------------------
-// 1. BOOT SCENE: Preload Assets & Build Animations
+// 1. BOOT SCENE: Assets & Procedural Retro Vehicles
 // ----------------------------------------------------
 class BootScene extends Phaser.Scene {
     constructor() { super("Boot"); }
@@ -254,29 +244,18 @@ class BootScene extends Phaser.Scene {
     preload() {
         this.load.path = 'assets/sprites/';
 
-        // Backgrounds & Environments
         this.load.image('home', 'home.jpg');
         this.load.image('city', 'evening city.png');
         this.load.image('road', 'vangarasta.png');
-        this.load.image('boss', 'boss-office.png');
-
-        // Characters & Vehicles
         this.load.image('baba_idle', 'baba.png');
         this.load.image('baba_w1', 'walkbaba.png');
         this.load.image('baba_w2', 'walkbaba1.png');
         this.load.image('baba_w3', 'walkbaba2.png');
-        this.load.image('pathao_single', 'bikeride.png');
-        this.load.image('dog_sleep', 'kuttasleep.jpg');
-        this.load.image('dog_bark', 'kuttavau.png');
-        this.load.image('bus_side', 'poristhanside.png');
         this.load.image('bus_top', 'bus-topdown.png');
+        this.load.image('bus_side', 'poristhanside.png');
         this.load.image('hunda_top', 'top_bike.png');
-        this.load.image('hunda_side', 'hunda.png');
         this.load.image('momo_angry', 'momo-boss.png');
         this.load.image('momo_happy', 'momo-happy.png');
-
-        // Items & VFX
-        this.load.image('files', 'files.png');
         this.load.image('golla', 'golla.png');
         this.load.image('heart', 'heart.png');
         this.load.image('choco', 'choco.png');
@@ -284,26 +263,17 @@ class BootScene extends Phaser.Scene {
         this.load.image('keys', 'keys.png');
         this.load.image('win', 'win.png');
 
-        // 10-Frame Lian Running Animation
         for (let i = 1; i <= 10; i++) {
             this.load.image(`l${i}`, `l${i}.png`);
         }
         this.load.image('jump_pose', 'l9.png');
-
-        // Loading bar display
-        const progress = this.add.graphics();
-        this.load.on('progress', (value) => {
-            progress.clear();
-            progress.fillStyle(0x00ff41, 1);
-            progress.fillRect(280, 260, 400 * value, 20);
-        });
-        this.load.on('complete', () => {
-            progress.destroy();
-        });
     }
 
     create() {
-        // Player Run Animation
+        // Generate Procedural Textures for Dhaka Vehicles & Slap VFX
+        this.createProceduralTextures();
+
+        // Animations
         this.anims.create({
             key: 'run',
             frames: [
@@ -314,7 +284,6 @@ class BootScene extends Phaser.Scene {
             repeat: -1
         });
 
-        // Baba Walk Animation
         this.anims.create({
             key: 'baba_walk',
             frames: [{ key: 'baba_w1' }, { key: 'baba_w2' }, { key: 'baba_w3' }],
@@ -324,6 +293,79 @@ class BootScene extends Phaser.Scene {
 
         this.scene.launch("UIScene");
         this.scene.start("IntroScene");
+    }
+
+    createProceduralTextures() {
+        // 1. "BD Tesla" (Erratic Battery Auto-Rickshaw)
+        if (!this.textures.exists('bd_tesla')) {
+            const canvas = this.textures.createCanvas('bd_tesla', 52, 90);
+            const ctx = canvas.context;
+            // Roof / Chassis
+            ctx.fillStyle = '#00bb55'; // Vibrant Dhaka Green
+            ctx.fillRect(6, 12, 40, 68);
+            // Yellow front hood
+            ctx.fillStyle = '#ffcc00';
+            ctx.fillRect(10, 2, 32, 14);
+            // Black windshield
+            ctx.fillStyle = '#111111';
+            ctx.fillRect(12, 16, 28, 14);
+            // Battery Box / Solar roof decal
+            ctx.fillStyle = '#005522';
+            ctx.fillRect(14, 34, 24, 36);
+            // Headlights
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(10, 0, 8, 4);
+            ctx.fillRect(34, 0, 8, 4);
+            canvas.refresh();
+        }
+
+        // 2. "Baper Rasta" Traditional Dhaka Rickshaw
+        if (!this.textures.exists('dhaka_rickshaw')) {
+            const canvas = this.textures.createCanvas('dhaka_rickshaw', 54, 96);
+            const ctx = canvas.context;
+            // Passenger Hood (Rickshaw Hood Yellow & Red)
+            ctx.fillStyle = '#ffcc00'; // Yellow Hood
+            ctx.fillRect(8, 40, 38, 46);
+            ctx.fillStyle = '#ee2233'; // Red Seat & Fringe
+            ctx.fillRect(12, 46, 30, 30);
+            // Driver Frame & Handlebar
+            ctx.fillStyle = '#333333';
+            ctx.fillRect(24, 18, 6, 24);
+            ctx.fillRect(14, 22, 26, 4);
+            // Front Wheel
+            ctx.fillStyle = '#111111';
+            ctx.fillRect(25, 4, 4, 16);
+            // Two Rear Wheels
+            ctx.fillRect(4, 55, 4, 26);
+            ctx.fillRect(46, 55, 4, 26);
+            // Driver Head / T-Shirt
+            ctx.fillStyle = '#2277bb';
+            ctx.beginPath();
+            ctx.arc(27, 28, 7, 0, Math.PI * 2);
+            ctx.fill();
+            canvas.refresh();
+        }
+
+        // 3. Comic Slap Hand Sprite
+        if (!this.textures.exists('slap_hand')) {
+            const canvas = this.textures.createCanvas('slap_hand', 48, 48);
+            const ctx = canvas.context;
+            ctx.fillStyle = '#ffcc88';
+            ctx.beginPath();
+            ctx.arc(24, 26, 14, 0, Math.PI * 2);
+            ctx.fill();
+            // Fingers
+            for (let i = 0; i < 4; i++) {
+                ctx.fillRect(13 + i * 6, 6, 5, 16);
+            }
+            // Thumb
+            ctx.fillRect(36, 20, 8, 6);
+            // Outline
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            canvas.refresh();
+        }
     }
 }
 
@@ -336,7 +378,7 @@ class UIScene extends Phaser.Scene {
     create() {
         const w = this.scale.width;
         this.timerBox = this.add.container(w - 170, 18).setScrollFactor(0).setDepth(10000);
-        const bg = this.add.rectangle(0, 0, 150, 32, 0x000000, 0.85).setStrokeStyle(1.5, 0x00ff41);
+        const bg = this.add.rectangle(0, 0, 150, 32, 0x000000, 0.90).setStrokeStyle(1.5, 0x00ff41);
         this.timerText = this.add.text(0, 0, 'TIME: 5:00', {
             fontFamily: 'Courier New, monospace',
             fontSize: '18px',
@@ -359,7 +401,7 @@ class UIScene extends Phaser.Scene {
                         this.timerText.setColor('#ff3333');
                     }
                 } else {
-                    showRetroModal("TIME EXPIRED!", "Momo blocked you everywhere and went offline.<br>You couldn't make it in time!", ["RETRY JOURNEY"], () => {
+                    showRetroModal("TIME EXPIRED!", "Momo blocked you everywhere and went offline.<br>You missed the date in Mohammadpur!", ["RETRY JOURNEY"], () => {
                         GLOBAL_TIMER = 300;
                         location.reload();
                     });
@@ -370,7 +412,7 @@ class UIScene extends Phaser.Scene {
 
     flashPenalty() {
         this.timerText.setColor('#ff0000');
-        this.cameras.main.shake(150, 0.01);
+        this.cameras.main.shake(150, 0.015);
         this.time.delayedCall(800, () => {
             this.timerText.setColor('#00ff41');
         });
@@ -378,7 +420,7 @@ class UIScene extends Phaser.Scene {
 }
 
 // ----------------------------------------------------
-// 3. INTRO SCENE: 3:00 AM Crisis
+// 3. INTRO SCENE: 3:00 AM Crisis (Mohammadpur Date)
 // ----------------------------------------------------
 class IntroScene extends Phaser.Scene {
     constructor() { super("IntroScene"); }
@@ -388,18 +430,18 @@ class IntroScene extends Phaser.Scene {
         const h = this.scale.height;
         this.cameras.main.setBackgroundColor('#020603');
 
-        const title = this.add.text(w / 2, 130, "3:00 AM — MIRPUR 10, DHAKA", {
+        this.add.text(w / 2, 120, "3:00 AM — MIRPUR 10, DHAKA", {
             fontFamily: 'Courier New, monospace',
-            fontSize: '28px',
+            fontSize: '26px',
             color: '#ffffff',
             fontStyle: 'bold'
         }).setOrigin(0.5);
 
         this.time.delayedCall(1200, () => {
             if (window.soundEngine) window.soundEngine.playTone(880, 'sine', 0.1);
-            this.add.text(w / 2, 210, "📩 1 UNREAD MESSAGE FROM MOMO", {
+            this.add.text(w / 2, 200, "📩 EMERGENCY MESSAGE FROM MOMO", {
                 fontFamily: 'Courier New, monospace',
-                fontSize: '20px',
+                fontSize: '19px',
                 color: '#ffcc00',
                 backgroundColor: '#051808',
                 padding: { x: 10, y: 6 }
@@ -408,33 +450,35 @@ class IntroScene extends Phaser.Scene {
 
         this.time.delayedCall(2400, () => {
             if (window.soundEngine) window.soundEngine.playHit();
-            this.add.text(w / 2, 290, "\"I HATE YOU. DO NOT CALL ME.\"", {
+            this.add.text(w / 2, 280, "\"TUMI EKHONO MOHAMMADPUR ASHONI?! I HATE YOU!\"", {
                 fontFamily: 'Courier New, monospace',
-                fontSize: '26px',
+                fontSize: '23px',
                 color: '#ff3333',
                 fontStyle: 'bold'
             }).setOrigin(0.5);
         });
 
         this.time.delayedCall(3800, () => {
-            this.add.text(w / 2, 370, "LIAN: \"Wait... SHE'S SERIOUS?! I MUST GO TO GULSHAN RIGHT NOW!\"", {
+            this.add.text(w / 2, 360, "LIAN: \"Our date at Town Hall! I must sneak out and get to Mohammadpur right now!\"", {
                 fontFamily: 'Courier New, monospace',
-                fontSize: '18px',
-                color: '#00ff41'
+                fontSize: '16px',
+                color: '#00ff41',
+                align: 'center'
             }).setOrigin(0.5);
         });
 
-        const startBtn = this.add.text(w / 2, 460, "[ TAP OR PRESS ENTER TO VIEW DHAKA ROUTE MAP ]", {
+        const startBtn = this.add.text(w / 2, 450, "[ TAP OR PRESS ENTER TO SNEAK OUT OF HOME ]", {
             fontFamily: 'Courier New, monospace',
             fontSize: '17px',
-            color: '#ffffff',
-            backgroundColor: '#004411',
-            padding: { x: 16, y: 8 }
+            color: '#000000',
+            backgroundColor: '#00ff41',
+            fontStyle: 'bold',
+            padding: { x: 18, y: 10 }
         }).setOrigin(0.5).setInteractive();
 
         const proceed = () => {
             if (window.soundEngine) window.soundEngine.playSelect();
-            this.scene.start("MapScene");
+            this.scene.start("LevelSneak");
         };
 
         startBtn.on('pointerdown', proceed);
@@ -444,74 +488,7 @@ class IntroScene extends Phaser.Scene {
 }
 
 // ----------------------------------------------------
-// 4. MAP SCENE: Authentic Dhaka GPS Route Briefing
-// ----------------------------------------------------
-class MapScene extends Phaser.Scene {
-    constructor() { super("MapScene"); }
-
-    create() {
-        const w = this.scale.width;
-        const h = this.scale.height;
-        this.cameras.main.setBackgroundColor('#030804');
-
-        this.add.text(w / 2, 38, "🗺️ DHAKA GPS ROUTE DISPATCH (14.2 KM)", {
-            fontFamily: 'Courier New, monospace',
-            fontSize: '22px',
-            color: '#00ff41',
-            fontStyle: 'bold'
-        }).setOrigin(0.5);
-
-        this.add.text(w / 2, 68, "DESTINATION: MOMO'S RESIDENCE (GULSHAN 2)", {
-            fontFamily: 'Courier New, monospace',
-            fontSize: '14px',
-            color: '#ffcc00'
-        }).setOrigin(0.5);
-
-        // Render Dhaka Road Stops
-        DHAKA_ROUTE.forEach((pt, idx) => {
-            const y = 115 + idx * 52;
-            const marker = this.add.circle(100, y, 9, 0x00ff41).setStrokeStyle(2, 0xffffff);
-            
-            this.add.text(125, y - 10, `${idx + 1}. ${pt.name} (${pt.km} KM)`, {
-                fontFamily: 'Courier New, monospace',
-                fontSize: '15px',
-                color: '#ffffff',
-                fontStyle: 'bold'
-            });
-
-            this.add.text(125, y + 8, `🚩 ${pt.landmark} — ${pt.desc}`, {
-                fontFamily: 'Courier New, monospace',
-                fontSize: '11px',
-                color: '#aaaaaa'
-            });
-
-            if (idx < DHAKA_ROUTE.length - 1) {
-                this.add.line(0, 0, 100, y + 9, 100, y + 43, 0x00ff41).setOrigin(0);
-            }
-        });
-
-        const goBtn = this.add.text(w / 2, 500, "[ START LEVEL 1: SNEAK OUT OF HOME (0.0 KM) ]", {
-            fontFamily: 'Courier New, monospace',
-            fontSize: '18px',
-            color: '#000000',
-            backgroundColor: '#00ff41',
-            fontStyle: 'bold',
-            padding: { x: 20, y: 10 }
-        }).setOrigin(0.5).setInteractive();
-
-        const begin = () => {
-            if (window.soundEngine) window.soundEngine.playSelect();
-            this.scene.start("LevelSneak");
-        };
-
-        goBtn.on('pointerdown', begin);
-        this.input.keyboard.on('keydown-SPACE', begin);
-        this.input.keyboard.on('keydown-ENTER', begin);
-    }
-}
-
-// ----------------------------------------------------
-// 5. LEVEL 1: SNEAK OUT OF HOME (Mirpur 10, 0.0 KM)
+// 4. LEVEL 1: SNEAK OUT OF HOME (Mirpur 10, 0.0 KM)
 // ----------------------------------------------------
 class LevelSneak extends Phaser.Scene {
     constructor() { super("LevelSneak"); }
@@ -519,44 +496,38 @@ class LevelSneak extends Phaser.Scene {
     create() {
         CURRENT_KM = 0.0;
         this.gpsHUD = new DhakaGPSHUD(this);
-        this.gpsHUD.create(CURRENT_KM, "Mirpur 10 (Home)");
-        this.gpsHUD.showLandmarkToast("Mirpur 10", "Sneak past Baba to reach the front door!");
+        this.gpsHUD.create(CURRENT_KM, "Mirpur 10 (Home)", "ON FOOT");
+        this.gpsHUD.showLandmarkToast("Mirpur 10", "Sneak past Baba to unlock the front door!");
 
-        // Living room background
         this.add.image(480, 270, 'home').setDisplaySize(960, 540);
 
-        // Invisible room bounds and walls
         this.walls = this.physics.add.staticGroup();
-        this.walls.add(this.add.rectangle(480, 50, 960, 30));   // Top wall
-        this.walls.add(this.add.rectangle(480, 530, 960, 30));  // Bottom wall
-        this.walls.add(this.add.rectangle(10, 270, 30, 540));   // Left wall
-        this.walls.add(this.add.rectangle(950, 270, 30, 540));  // Right wall
-        this.walls.add(this.add.rectangle(480, 180, 24, 240));  // Partition wall
-        this.walls.add(this.add.rectangle(480, 430, 24, 140));  // Living divider
+        this.walls.add(this.add.rectangle(480, 50, 960, 30));
+        this.walls.add(this.add.rectangle(480, 530, 960, 30));
+        this.walls.add(this.add.rectangle(10, 270, 30, 540));
+        this.walls.add(this.add.rectangle(950, 270, 30, 540));
+        this.walls.add(this.add.rectangle(480, 180, 24, 240));
+        this.walls.add(this.add.rectangle(480, 430, 24, 140));
         this.walls.children.iterate(w => w.setVisible(false));
 
-        // Front Door Keys
         this.hasKeys = false;
         this.keySprite = this.physics.add.sprite(340, 220, 'keys').setScale(0.08);
         this.keyText = this.add.text(340, 195, "DOOR KEYS", { fontSize: '11px', backgroundColor: '#000' }).setOrigin(0.5);
 
-        // Player (Lian)
         this.player = this.physics.add.sprite(120, 180, 'l1').setScale(0.5);
         this.player.body.setSize(40, 40).setOffset(20, 80);
         this.player.setCollideWorldBounds(true);
         this.physics.add.collider(this.player, this.walls);
 
-        // Baba (Patrolling Dad)
         this.baba = this.physics.add.sprite(620, 200, 'baba_idle').setScale(0.6).play('baba_walk');
         this.baba.body.setSize(45, 45).setOffset(20, 80);
 
         this.alertText = this.add.text(this.baba.x, this.baba.y - 60, '', {
-            fontSize: '24px',
+            fontSize: '22px',
             color: '#ff0000',
             fontStyle: 'bold'
         }).setOrigin(0.5);
 
-        // Waypoints for Baba's patrol
         this.patrolPoints = [
             { x: 580, y: 340 },
             { x: 780, y: 340 },
@@ -566,7 +537,6 @@ class LevelSneak extends Phaser.Scene {
         this.patrolIdx = 0;
         this.moveBaba();
 
-        // Front Exit Door (Bottom Right)
         this.exitDoor = this.add.rectangle(910, 480, 60, 90, 0x00ff41, 0.25).setStrokeStyle(2, 0x00ff41);
         this.physics.add.existing(this.exitDoor, true);
 
@@ -577,7 +547,6 @@ class LevelSneak extends Phaser.Scene {
             align: 'center'
         }).setOrigin(0.5);
 
-        // Pick up keys overlap
         this.physics.add.overlap(this.player, this.keySprite, () => {
             if (!this.hasKeys) {
                 this.hasKeys = true;
@@ -585,15 +554,14 @@ class LevelSneak extends Phaser.Scene {
                 this.keySprite.destroy();
                 this.keyText.destroy();
                 this.doorLabel.setText("EXIT\nOPEN!").setColor('#00ff41');
-                this.gpsHUD.showLandmarkToast("Keys Collected", "Now sneak to the front door!");
+                this.gpsHUD.showLandmarkToast("Door Key Collected", "Now head to front door to pick your ride!");
             }
         });
 
-        // Exit door overlap
         this.physics.add.overlap(this.player, this.exitDoor, () => {
             if (this.hasKeys) {
                 if (window.soundEngine) window.soundEngine.playWin();
-                this.scene.start("LevelRun");
+                this.scene.start("RideSelectScene");
             }
         });
 
@@ -612,14 +580,12 @@ class LevelSneak extends Phaser.Scene {
     }
 
     update() {
-        // Patrol waypoint checking
         const pt = this.patrolPoints[this.patrolIdx];
         if (Phaser.Math.Distance.Between(this.baba.x, this.baba.y, pt.x, pt.y) < 15) {
             this.patrolIdx = (this.patrolIdx + 1) % this.patrolPoints.length;
             this.time.delayedCall(400, () => this.moveBaba());
         }
 
-        // Unified Input
         const left = this.cursors.left.isDown || this.wasd.left.isDown || window.gameInputs.left;
         const right = this.cursors.right.isDown || this.wasd.right.isDown || window.gameInputs.right;
         const up = this.cursors.up.isDown || this.wasd.up.isDown || window.gameInputs.up;
@@ -654,10 +620,9 @@ class LevelSneak extends Phaser.Scene {
         this.baba.setDepth(this.baba.y);
         this.alertText.setPosition(this.baba.x, this.baba.y - 65);
 
-        // Baba detection proximity
         const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.baba.x, this.baba.y);
         if (dist < 110) {
-            this.alertText.setText("❗ 'KIRE? ETO RAATE KOI JASH?!'");
+            this.alertText.setText("❗ 'KIRE? KOI JASH ETO RAATE?!'");
             if (dist < 55) {
                 if (window.soundEngine) window.soundEngine.playHit();
                 this.cameras.main.shake(250, 0.015);
@@ -665,8 +630,6 @@ class LevelSneak extends Phaser.Scene {
                 this.alertText.setText("CAUGHT! SENT BACK TO BED!");
                 this.time.delayedCall(1200, () => this.alertText.setText(''));
             }
-        } else if (dist < 180) {
-            this.alertText.setText("❓ 'SHOBDO KISHER?'");
         } else {
             this.alertText.setText('');
         }
@@ -674,487 +637,456 @@ class LevelSneak extends Phaser.Scene {
 }
 
 // ----------------------------------------------------
-// 6. LEVEL 2: CITY SPRINT (Rokeya Sarani / Agargaon, 2.5 KM)
+// 5. RIDE SELECT SCENE: 3 Dhaka Modes to Mohammadpur
 // ----------------------------------------------------
-class LevelRun extends Phaser.Scene {
-    constructor() { super("LevelRun"); }
+class RideSelectScene extends Phaser.Scene {
+    constructor() { super("RideSelectScene"); }
 
     create() {
-        CURRENT_KM = 2.5;
+        const w = this.scale.width;
+        const h = this.scale.height;
+        this.cameras.main.setBackgroundColor('#020904');
+
+        this.add.text(w / 2, 35, "🚕 CHOOSE YOUR RIDE TO MOHAMMADPUR DATE 🚕", {
+            fontFamily: 'Courier New, monospace',
+            fontSize: '22px',
+            color: '#00ff41',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+
+        this.add.text(w / 2, 65, "Route: Mirpur 10 ➔ Mirpur 1 ➔ Kallyanpur ➔ Shyamoli ➔ Asad Gate ➔ Mohammadpur (8.8 KM)", {
+            fontFamily: 'Courier New, monospace',
+            fontSize: '12px',
+            color: '#ffcc00'
+        }).setOrigin(0.5);
+
+        // Card 1: 🏍️ BIKE: BD Tesla Slapper
+        this.createRideCard(
+            170, 270, "🏍️ BIKE RUSH", "BD Tesla Slapper Mode",
+            "Fast & agile! Slap erratic battery Teslas (+10/+50 pts)!\n[A/Space]: SLAP | [B/Down]: Nitro Boost",
+            0x00e5ff, 'bike', 'hunda_top', 0.5
+        );
+
+        // Card 2: 🛺 RICKSHAW: Baper Rasta
+        this.createRideCard(
+            480, 270, "🛺 RICKSHAW", "Baper Rasta Mode",
+            "Drive like it's your father's road! Ring the bell!\n[A/Space]: TRING BELL | [B/Down]: Turbo Pedal",
+            0xffcc00, 'rickshaw', 'dhaka_rickshaw', 1.0
+        );
+
+        // Card 3: 🚌 BUS: Dhaka Unlimited
+        this.createRideCard(
+            790, 270, "🚌 LOCAL BUS", "Dhaka Unlimited Mode",
+            "Heavy transport! Blare pneumatic air horn to clear traffic!\n[A/Space]: AIR HORN | [B/Down]: Turbo Diesel",
+            0xff3366, 'bus', 'bus_top', 0.55
+        );
+
+        this.add.text(w / 2, 495, "💡 Every mode takes you to Momo's Date Spot in Mohammadpur!", {
+            fontFamily: 'Courier New, monospace',
+            fontSize: '13px',
+            color: '#888888'
+        }).setOrigin(0.5);
+    }
+
+    createRideCard(x, y, title, subtitle, desc, strokeColor, modeKey, spriteKey, scale) {
+        const card = this.add.container(x, y);
+        const bg = this.add.rectangle(0, 0, 270, 360, 0x051408, 0.95)
+            .setStrokeStyle(2, strokeColor)
+            .setInteractive();
+
+        const t1 = this.add.text(0, -145, title, {
+            fontFamily: 'Courier New, monospace',
+            fontSize: '18px',
+            color: '#ffffff',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+
+        const t2 = this.add.text(0, -120, subtitle, {
+            fontFamily: 'Courier New, monospace',
+            fontSize: '12px',
+            color: '#ffcc00'
+        }).setOrigin(0.5);
+
+        const icon = this.add.image(0, -35, spriteKey).setScale(scale);
+
+        const descText = this.add.text(0, 55, desc, {
+            fontFamily: 'Courier New, monospace',
+            fontSize: '11px',
+            color: '#cccccc',
+            align: 'center',
+            wordWrap: { width: 240 }
+        }).setOrigin(0.5);
+
+        const btn = this.add.text(0, 135, "[ SELECT & START ]", {
+            fontFamily: 'Courier New, monospace',
+            fontSize: '14px',
+            color: '#000000',
+            backgroundColor: '#00ff41',
+            fontStyle: 'bold',
+            padding: { x: 14, y: 6 }
+        }).setOrigin(0.5);
+
+        card.add([bg, t1, t2, icon, descText, btn]);
+
+        const selectThis = () => {
+            SELECTED_RIDE = modeKey;
+            if (window.soundEngine) {
+                if (modeKey === 'bike') window.soundEngine.playSlap();
+                else if (modeKey === 'rickshaw') window.soundEngine.playBell();
+                else window.soundEngine.playAirHorn();
+            }
+            this.scene.start("LevelRoadRush");
+        };
+
+        bg.on('pointerdown', selectThis);
+        btn.setInteractive().on('pointerdown', selectThis);
+
+        bg.on('pointerover', () => { bg.setFillStyle(0x0a2810); card.setScale(1.03); });
+        bg.on('pointerout', () => { bg.setFillStyle(0x051408); card.setScale(1.0); });
+    }
+}
+
+// ----------------------------------------------------
+// 6. LEVEL: DHAKA ROAD RUSH (Mirpur 10 -> Mohammadpur, 8.8 KM)
+// Incorporating BD Tesla Slapper / Baper Rasta / Dhaka Unlimited
+// ----------------------------------------------------
+class LevelRoadRush extends Phaser.Scene {
+    constructor() { super("LevelRoadRush"); }
+
+    create() {
+        CURRENT_KM = 0.0;
         this.gpsHUD = new DhakaGPSHUD(this);
-        this.gpsHUD.create(CURRENT_KM, "Agargaon Metro (MRT Line 6)");
-        this.gpsHUD.showLandmarkToast("Rokeya Sarani", "Avoid sleeping dogs & solve boss paperwork penalties!");
+        const modeTitle = SELECTED_RIDE === 'bike' ? 'BD TESLA SLAPPER' : SELECTED_RIDE === 'rickshaw' ? 'BAPER RASTA' : 'DHAKA UNLIMITED';
+        this.gpsHUD.create(CURRENT_KM, "Mirpur 10 Circle", modeTitle);
+        this.gpsHUD.showLandmarkToast("Starting Date Rush", `Mode: ${modeTitle} | Destination: Mohammadpur Town Hall!`);
 
-        // Parallax Dhaka City background
-        this.bg = this.add.tileSprite(480, 270, 960, 540, 'city');
+        // Road Parallax TileSprite
+        this.road = this.add.tileSprite(480, 270, 960, 540, 'road');
 
-        // Flying Office Boss
-        this.boss = this.add.image(860, 280, 'boss').setScale(0.85).setDepth(50);
-        this.tweens.add({
-            targets: this.boss,
-            y: 330,
-            duration: 1600,
-            yoyo: true,
-            repeat: -1,
-            ease: 'Sine.easeInOut'
-        });
+        // Vehicle Setup based on selection
+        if (SELECTED_RIDE === 'bike') {
+            this.player = this.physics.add.sprite(480, 440, 'hunda_top').setScale(0.5);
+            this.player.body.setSize(40, 85);
+        } else if (SELECTED_RIDE === 'rickshaw') {
+            this.player = this.physics.add.sprite(480, 440, 'dhaka_rickshaw').setScale(0.9);
+            this.player.body.setSize(44, 85);
+        } else {
+            this.player = this.physics.add.sprite(480, 430, 'bus_top').setScale(0.55);
+            this.player.body.setSize(55, 130);
+        }
 
-        // Player Runner
-        this.player = this.physics.add.sprite(140, 420, 'l1').setScale(0.75).setDepth(100);
-        this.player.setGravityY(1400);
-        this.player.setCollideWorldBounds(true);
+        // Slap hand sprite for Bike Mode
+        this.slapSprite = this.add.sprite(0, 0, 'slap_hand').setVisible(false).setDepth(200);
 
-        // Ground Collider
-        this.ground = this.add.rectangle(480, 510, 960, 30, 0x000000, 0);
-        this.physics.add.existing(this.ground, true);
-        this.physics.add.collider(this.player, this.ground);
+        // Groups: Teslas, Traffic Vehicles, Gifts (Flowers/Chocos)
+        this.teslas = this.physics.add.group();
+        this.traffic = this.physics.add.group();
+        this.gifts = this.physics.add.group();
 
-        // Obstacle Groups
-        this.obstacles = this.physics.add.group();
-        this.obstacleTimer = this.time.addEvent({
-            delay: 1800,
-            callback: this.spawnObstacle,
+        // Mode Specific Score Display
+        this.scoreBox = this.add.container(18, 55).setScrollFactor(0).setDepth(9000);
+        const sBg = this.add.rectangle(80, 0, 160, 28, 0x000000, 0.85).setStrokeStyle(1, 0x00ff41);
+        this.scoreLabel = this.add.text(80, 0, this.getScoreText(), {
+            fontFamily: 'Courier New, monospace',
+            fontSize: '13px',
+            color: '#ffcc00',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+        this.scoreBox.add([sBg, this.scoreLabel]);
+
+        // Spawners
+        this.spawner = this.time.addEvent({
+            delay: SELECTED_RIDE === 'bike' ? 850 : 1000,
+            callback: this.spawnRoadObstacles,
             callbackScope: this,
             loop: true
         });
 
-        this.physics.add.overlap(this.player, this.obstacles, this.hitObstacle, null, this);
-
-        // 20-second survival countdown for Agargaon segment
-        this.timeLeft = 20;
-        this.statusText = this.add.text(18, 55, 'Survive Boss Rush: 20s', {
-            fontFamily: 'Courier New, monospace',
-            fontSize: '18px',
-            color: '#ffffff',
-            backgroundColor: '#000000',
-            padding: { x: 8, y: 4 }
-        });
-
-        this.time.addEvent({
-            delay: 1000,
-            loop: true,
+        // Gift Spawner (Flowers & Chocos along Shyamoli / Asad Gate for Momo)
+        this.giftSpawner = this.time.addEvent({
+            delay: 1600,
             callback: () => {
-                this.timeLeft--;
-                this.statusText.setText(`Survive Boss Rush: ${this.timeLeft}s`);
-                if (this.timeLeft <= 0) {
-                    this.obstacleTimer.remove();
-                    showRetroModal("MOMO INCOMING CALL!", "📱 MOMO: 'Ekhono tmi phone deona! Etokhone to maf chaoa uchit silo!'<br><br>LIAN: 'I'm rushing as fast as I can! Getting flowers now!'", ["CONTINUE TO CRESCENT LAKE"], () => {
-                        this.scene.start("LevelCollect");
-                    });
+                if (CURRENT_KM >= 3.5 && CURRENT_KM <= 7.0) {
+                    const x = Phaser.Math.Between(260, 700);
+                    const isChoco = Math.random() > 0.5;
+                    const g = this.gifts.create(x, -50, isChoco ? 'choco' : 'flower')
+                        .setScale(isChoco ? 0.12 : 0.15)
+                        .setVelocityY(280);
+                    g.body.setAllowGravity(false);
                 }
-            }
-        });
-
-        this.cursors = this.input.keyboard.createCursorKeys();
-        this.isSlowed = false;
-    }
-
-    spawnObstacle() {
-        const type = Phaser.Math.Between(0, 1);
-        if (type === 0) {
-            // Sleeping Dhaka Street Dog
-            const dog = this.obstacles.create(960, 475, 'dog_sleep').setScale(0.16);
-            dog.setVelocityX(-380);
-            dog.body.setAllowGravity(false);
-            dog.obsType = "dog";
-        } else {
-            // Urgent Work Files thrown by Boss
-            const file = this.obstacles.create(850, 320, 'files').setScale(0.22);
-            file.setVelocityX(-460);
-            file.body.setAllowGravity(false);
-            file.obsType = "file";
-        }
-    }
-
-    hitObstacle(player, obs) {
-        if (!obs.active) return;
-
-        if (obs.obsType === "dog") {
-            obs.setTexture('dog_bark');
-            obs.obsType = "barked";
-            if (window.soundEngine) window.soundEngine.playBark();
-            this.isSlowed = true;
-            player.setTint(0xff5555);
-            this.cameras.main.shake(120, 0.01);
-            this.time.delayedCall(1200, () => {
-                this.isSlowed = false;
-                player.clearTint();
-            });
-            obs.destroy();
-        } else if (obs.obsType === "file") {
-            obs.destroy();
-            this.physics.pause();
-            if (window.soundEngine) window.soundEngine.playHit();
-
-            const prob = mathProblems[Phaser.Math.Between(0, mathProblems.length - 1)];
-            showRetroModal("⚠️ ENGINEERING PENALTY!", `Boss caught you with urgent engineering tasks!<br><b>${prob.q}</b>`, prob.a, (selectedIdx) => {
-                this.physics.resume();
-                if (selectedIdx === prob.c) {
-                    this.gpsHUD.showLandmarkToast("Solved!", "Paperwork handled. No delay!");
-                    if (window.soundEngine) window.soundEngine.playCollect();
-                } else {
-                    GLOBAL_TIMER = Math.max(0, GLOBAL_TIMER - 10);
-                    this.gpsHUD.showLandmarkToast("Incorrect!", "-10 Seconds Lost!");
-                    const uiScene = this.scene.get("UIScene");
-                    if (uiScene) uiScene.flashPenalty();
-                }
-            });
-        }
-    }
-
-    update() {
-        this.bg.tilePositionX += this.isSlowed ? 2 : 6;
-
-        const jump = this.cursors.up.isDown || this.cursors.space.isDown || window.gameInputs.up || window.gameInputs.actionA;
-        const duck = this.cursors.down.isDown || window.gameInputs.down || window.gameInputs.actionB;
-
-        if (this.player.body.touching.down) {
-            if (jump) {
-                this.player.setVelocityY(-720);
-                this.player.setTexture('jump_pose');
-                if (window.soundEngine) window.soundEngine.playJump();
-            } else if (duck) {
-                this.player.body.setSize(45, 60).setOffset(10, 50);
-                this.player.anims.play('run', true);
-                this.player.setTint(0x888888);
-            } else {
-                this.player.body.setSize(45, 120).setOffset(10, 10);
-                this.player.clearTint();
-                if (!this.isSlowed) this.player.anims.play('run', true);
-            }
-        } else {
-            this.player.setTexture('jump_pose');
-        }
-    }
-}
-
-// ----------------------------------------------------
-// 7. LEVEL 3: FLOWER & CHOCOLATE COLLECT (Sangsad / Crescent Lake, 5.1 KM)
-// ----------------------------------------------------
-class LevelCollect extends Phaser.Scene {
-    constructor() { super("LevelCollect"); }
-
-    create() {
-        CURRENT_KM = 5.1;
-        this.gpsHUD = new DhakaGPSHUD(this);
-        this.gpsHUD.create(CURRENT_KM, "Jatiya Sangsad & Crescent Lake");
-        this.gpsHUD.showLandmarkToast("Crescent Lake", "Collect 10 fresh roses & chocolates for Momo!");
-
-        this.bg = this.add.tileSprite(480, 270, 960, 540, 'city');
-
-        // Free 2D Movement
-        this.player = this.physics.add.sprite(150, 360, 'l1').play('run').setScale(0.75).setDepth(100);
-        this.player.setCollideWorldBounds(true);
-
-        this.itemsGroup = this.physics.add.group();
-        this.itemSpawner = this.time.addEvent({
-            delay: 1100,
-            callback: () => {
-                const y = Phaser.Math.Between(220, 480);
-                const isChoco = Math.random() > 0.5;
-                const item = this.itemsGroup.create(960, y, isChoco ? 'choco' : 'flower')
-                    .setScale(isChoco ? 0.12 : 0.15)
-                    .setVelocityX(-220);
-                item.body.setAllowGravity(false);
-                item.isChoco = isChoco;
             },
             loop: true
         });
 
-        this.count = 0;
-        this.countText = this.add.text(18, 55, 'Gifts Collected: 0 / 10', {
-            fontFamily: 'Courier New, monospace',
-            fontSize: '20px',
-            color: '#ffcc00',
-            backgroundColor: '#000000',
-            padding: { x: 8, y: 4 }
-        });
-
-        this.cursors = this.input.keyboard.createCursorKeys();
-
-        this.physics.add.overlap(this.player, this.itemsGroup, (p, item) => {
-            item.destroy();
-            this.count++;
+        // Overlaps
+        this.physics.add.overlap(this.player, this.gifts, (p, g) => {
+            g.destroy();
+            FLOWERS_COLLECTED++;
             if (window.soundEngine) window.soundEngine.playCollect();
-            this.countText.setText(`Gifts Collected: ${this.count} / 10`);
-
-            if (this.count >= 10 && !this.busArrived) {
-                this.busArrived = true;
-                this.itemSpawner.remove();
-                this.spawnBusArrival();
-            }
-        });
-    }
-
-    spawnBusArrival() {
-        this.bus = this.physics.add.sprite(960, 380, 'bus_side').setScale(0.55).setImmovable(true).setDepth(90);
-        if (window.soundEngine) window.soundEngine.playHorn();
-
-        this.tweens.add({
-            targets: this.bus,
-            x: 750,
-            duration: 1200,
-            ease: 'Power2',
-            onComplete: () => {
-                this.gpsHUD.showLandmarkToast("Poristhan Bus Arrived!", "Walk to the bus door to board!");
-                this.physics.add.overlap(this.player, this.bus, () => {
-                    this.scene.start("LevelBus");
-                });
-            }
-        });
-    }
-
-    update() {
-        this.bg.tilePositionX += 4;
-        this.player.setVelocity(0);
-        const speed = 250;
-
-        const left = this.cursors.left.isDown || window.gameInputs.left;
-        const right = this.cursors.right.isDown || window.gameInputs.right;
-        const up = this.cursors.up.isDown || window.gameInputs.up;
-        const down = this.cursors.down.isDown || window.gameInputs.down;
-
-        if (left) this.player.setVelocityX(-speed);
-        if (right) this.player.setVelocityX(speed);
-        if (up) this.player.setVelocityY(-speed);
-        if (down) this.player.setVelocityY(speed);
-    }
-}
-
-// ----------------------------------------------------
-// 8. LEVEL 4: DHAKA BUS TRAFFIC RUSH (Farmgate, 7.8 KM)
-// ----------------------------------------------------
-class LevelBus extends Phaser.Scene {
-    constructor() { super("LevelBus"); }
-
-    create() {
-        CURRENT_KM = 7.8;
-        this.gpsHUD = new DhakaGPSHUD(this);
-        this.gpsHUD.create(CURRENT_KM, "Farmgate & Bijoy Sarani");
-        this.gpsHUD.showLandmarkToast("Farmgate Intersection", "Steer the Poristhan Bus through Dhaka gridlock!");
-
-        // Road Top-Down Texture
-        this.road = this.add.tileSprite(480, 270, 960, 540, 'road');
-
-        // Player's Poristhan Bus
-        this.player = this.physics.add.sprite(480, 430, 'bus_top').setScale(0.55);
-        this.player.body.setSize(55, 130);
-
-        this.traffic = this.physics.add.group();
-        this.trafficTimer = this.time.addEvent({
-            delay: 900,
-            callback: () => {
-                const x = Phaser.Math.Between(260, 700);
-                const vehicle = this.traffic.create(x, -100, 'bus_top').setScale(0.55).setTint(0xff5555).setVelocityY(380);
-                vehicle.body.setSize(55, 130);
-            },
-            loop: true
-        });
-
-        this.hits = 0;
-        this.physics.add.overlap(this.player, this.traffic, (p, t) => {
-            if (t.active) {
-                t.destroy();
-                this.hits++;
-                if (window.soundEngine) window.soundEngine.playHit();
-                this.cameras.main.shake(180, 0.015);
-                if (this.hits >= 3) {
-                    this.triggerBlockEvent();
-                }
-            }
-        });
-
-        // 14 seconds of traffic rush before bus gets stuck in Farmgate jam
-        this.time.delayedCall(14000, () => {
-            this.triggerBlockEvent();
-        });
-
-        this.cursors = this.input.keyboard.createCursorKeys();
-    }
-
-    triggerBlockEvent() {
-        if (this.isEnding) return;
-        this.isEnding = true;
-        this.trafficTimer.remove();
-
-        showRetroModal("💥 FARMGATE GRIDLOCK!", "The Poristhan Bus is completely trapped in a massive traffic jam!<br><br>📱 <b>MOMO CALLED...</b><br>\"No need to see me again. Good bye.\"<br><br><span style='color:red; font-size:18px;'>YOU ARE BLOCKED ON WHATSAPP & PHONE.</span>", ["DISEMBARK AT MOHAKHALI & FIND A BIKE"], () => {
-            this.scene.start("LevelBargain");
-        });
-    }
-
-    update() {
-        this.road.tilePositionY -= 9;
-
-        const left = this.cursors.left.isDown || window.gameInputs.left;
-        const right = this.cursors.right.isDown || window.gameInputs.right;
-        const horn = this.cursors.space.isDown || window.gameInputs.actionA;
-
-        if (horn && !this.hornCooldown) {
-            this.hornCooldown = true;
-            if (window.soundEngine) window.soundEngine.playHorn();
-            this.time.delayedCall(800, () => { this.hornCooldown = false; });
-        }
-
-        if (left && this.player.x > 240) this.player.x -= 6;
-        if (right && this.player.x < 720) this.player.x += 6;
-    }
-}
-
-// ----------------------------------------------------
-// 9. LEVEL 5: PATHAO BARGAIN (Mohakhali Flyover, 9.5 KM)
-// ----------------------------------------------------
-class LevelBargain extends Phaser.Scene {
-    constructor() { super("LevelBargain"); }
-
-    create() {
-        CURRENT_KM = 9.5;
-        this.gpsHUD = new DhakaGPSHUD(this);
-        this.gpsHUD.create(CURRENT_KM, "Mohakhali Flyover");
-        this.gpsHUD.showLandmarkToast("Mohakhali Amtoli", "Find a Pathao biker and negotiate a fast fare to Gulshan!");
-
-        this.add.image(480, 270, 'city').setTint(0x555555);
-        this.add.image(480, 310, 'pathao_single').setScale(1.4);
-
-        this.time.delayedCall(600, () => {
-            this.openBargainModal();
-        });
-    }
-
-    openBargainModal() {
-        showRetroModal(
-            "🏍️ PATHAO NEGOTIATION CONSOLE",
-            "Rider: \"Mama kothay jaben? Gulshan 2? 250 taka lagen!\"<br>How much will you offer?",
-            [
-                "Offer 100 Taka (Too Cheap)",
-                "Offer 130 Taka (Dhaka Realistic Fare)",
-                "Offer 200 Taka (VIP Urgent Rush)"
-            ],
-            (choice) => {
-                if (choice === 0) {
-                    showRetroModal("RIDER REFUSED!", "Rider: \"Dhur mama! Eto kom e ke jabe? Hatey hete jan!\"", ["TRY AGAIN"], () => {
-                        this.openBargainModal();
-                    });
-                } else if (choice === 1) {
-                    if (window.soundEngine) window.soundEngine.playMotorcycle();
-                    showRetroModal("ACCEPTED!", "Rider: \"Thik ase mama, uthen! Helmet ta mathay nen!\"", ["LET'S GO!"], () => {
-                        this.scene.start("LevelBike");
-                    });
-                } else {
-                    if (window.soundEngine) window.soundEngine.playMotorcycle();
-                    showRetroModal("VIP SPEED BOOST!", "Rider: \"Mama apni to boro lok! Roket er moton jabo!\"", ["FULL THROTTLE!"], () => {
-                        this.scene.start("LevelBike");
-                    });
-                }
-            }
-        );
-    }
-}
-
-// ----------------------------------------------------
-// 10. LEVEL 6: HATIRJHEEL EXPRESSWAY (12.0 KM -> 14.2 KM)
-// ----------------------------------------------------
-class LevelBike extends Phaser.Scene {
-    constructor() { super("LevelBike"); }
-
-    create() {
-        CURRENT_KM = 12.0;
-        this.gpsHUD = new DhakaGPSHUD(this);
-        this.gpsHUD.create(CURRENT_KM, "Hatirjheel Expressway");
-        this.gpsHUD.showLandmarkToast("Hatirjheel Night Loop", "High speed rush! Dodge CNGs, potholes and trucks!");
-
-        this.road = this.add.tileSprite(480, 270, 960, 540, 'road');
-
-        // Top-down Motorbike
-        this.player = this.physics.add.sprite(480, 440, 'hunda_top').setScale(0.5);
-        this.player.body.setSize(40, 90);
-
-        this.traffic = this.physics.add.group();
-        this.trafficTimer = this.time.addEvent({
-            delay: 750,
-            callback: () => {
-                const x = Phaser.Math.Between(260, 700);
-                const bus = this.traffic.create(x, -100, 'bus_top').setScale(0.5).setVelocityY(420);
-                bus.body.setSize(50, 120);
-            },
-            loop: true
+            this.gpsHUD.showLandmarkToast("Date Gift Collected!", `Picked up roses & chocolates (${FLOWERS_COLLECTED} collected)!`);
         });
 
         this.physics.add.overlap(this.player, this.traffic, (p, t) => {
             t.destroy();
             if (window.soundEngine) window.soundEngine.playHit();
             this.cameras.main.shake(160, 0.015);
-            GLOBAL_TIMER = Math.max(0, GLOBAL_TIMER - 5);
+            GLOBAL_TIMER = Math.max(0, GLOBAL_TIMER - 4);
         });
 
-        // Dynamic distance countdown from 12.0 km to 14.2 km
-        this.speedKmH = 85;
-        this.distCovered = 12.0;
+        this.physics.add.overlap(this.player, this.teslas, (p, t) => {
+            // Collision with Tesla
+            t.destroy();
+            if (window.soundEngine) window.soundEngine.playHit();
+            this.cameras.main.shake(180, 0.02);
+            GLOBAL_TIMER = Math.max(0, GLOBAL_TIMER - 6);
+            this.gpsHUD.showLandmarkToast("CRASH!", "Erratic Tesla bumped into you! -6s");
+        });
 
+        // Distance & Landmark Progression to Mohammadpur (8.8 KM)
+        this.distCovered = 0.0;
         this.kmTimer = this.time.addEvent({
-            delay: 400,
+            delay: 350,
             loop: true,
             callback: () => {
-                this.distCovered += 0.1;
+                const step = SELECTED_RIDE === 'bike' ? 0.08 : SELECTED_RIDE === 'rickshaw' ? 0.05 : 0.07;
+                this.distCovered += step;
                 CURRENT_KM = parseFloat(this.distCovered.toFixed(1));
-                this.gpsHUD.updateDistance(CURRENT_KM, CURRENT_KM >= 13.5 ? "Gulshan 2 Lake Park" : "Hatirjheel Bridges");
 
-                if (CURRENT_KM >= 14.2) {
-                    this.trafficTimer.remove();
+                // Checkpoint Triggers
+                let currentLandmark = "Mirpur 10 Circle";
+                if (CURRENT_KM >= 7.5) currentLandmark = "Mohammadpur Town Hall";
+                else if (CURRENT_KM >= 6.5) currentLandmark = "Asad Gate & St. Joseph";
+                else if (CURRENT_KM >= 5.0) currentLandmark = "Shyamoli Square & Shishu Mela";
+                else if (CURRENT_KM >= 3.5) currentLandmark = "Technical Mor / Kallyanpur";
+                else if (CURRENT_KM >= 1.8) currentLandmark = "Mirpur 1 & Sony Cinema";
+
+                this.gpsHUD.updateDistance(CURRENT_KM, currentLandmark);
+
+                if (CURRENT_KM >= 8.8) {
+                    this.spawner.remove();
+                    this.giftSpawner.remove();
                     this.kmTimer.remove();
-                    this.scene.start("LevelBoss");
+                    this.arriveAtMohammadpur();
                 }
             }
         });
 
         this.cursors = this.input.keyboard.createCursorKeys();
+        this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+    }
+
+    getScoreText() {
+        if (SELECTED_RIDE === 'bike') return `SLAPS: ${STATS_SLAPS}`;
+        if (SELECTED_RIDE === 'rickshaw') return `BELLS: ${STATS_BELLS}`;
+        return `PASSENGERS: ${STATS_PASSENGERS}`;
+    }
+
+    spawnRoadObstacles() {
+        const x = Phaser.Math.Between(260, 700);
+        const isTesla = Math.random() > 0.45;
+
+        if (isTesla) {
+            // Spawn erratic Battery Tesla
+            const isWrongWay = Math.random() > 0.55;
+            const speed = isWrongWay ? 460 : 320;
+            const tesla = this.teslas.create(x, -90, 'bd_tesla').setScale(0.85).setVelocityY(speed);
+            tesla.isWrongWay = isWrongWay;
+            if (isWrongWay) tesla.setTint(0xff5555); // Red glow for wrong side!
+            tesla.body.setSize(44, 80);
+        } else {
+            // Regular Traffic (Bus or Car)
+            const bus = this.traffic.create(x, -110, 'bus_top').setScale(0.5).setVelocityY(380);
+            bus.body.setSize(50, 120);
+        }
+    }
+
+    handleAction() {
+        if (SELECTED_RIDE === 'bike') {
+            // 💥 BD TESLA SLAPPER ACTION: Slap nearby Teslas!
+            if (window.soundEngine) window.soundEngine.playSlap();
+
+            // Find closest Tesla within slap range
+            let slapped = false;
+            this.teslas.children.iterate((t) => {
+                if (t && t.active && Phaser.Math.Distance.Between(this.player.x, this.player.y, t.x, t.y) < 130) {
+                    slapped = true;
+                    const pts = t.isWrongWay ? 50 : 10;
+                    STATS_SLAPS++;
+                    GLOBAL_SCORE += pts;
+                    this.scoreLabel.setText(this.getScoreText());
+
+                    // Visual Slap Animation
+                    this.slapSprite.setPosition(t.x, t.y).setVisible(true).setScale(1.2);
+                    this.tweens.add({
+                        targets: this.slapSprite,
+                        scaleX: 1.8,
+                        scaleY: 1.8,
+                        alpha: 0,
+                        duration: 250,
+                        onComplete: () => {
+                            this.slapSprite.setVisible(false).setAlpha(1).setScale(1.2);
+                        }
+                    });
+
+                    // Floating Slap Text
+                    const txt = this.add.text(t.x, t.y - 20, t.isWrongWay ? "💥 ULTA RASTA! +50" : "👋 THASH! +10", {
+                        fontFamily: 'Courier New, monospace',
+                        fontSize: '16px',
+                        color: t.isWrongWay ? '#ff0055' : '#ffcc00',
+                        fontStyle: 'bold'
+                    }).setOrigin(0.5);
+                    this.tweens.add({
+                        targets: txt,
+                        y: txt.y - 40,
+                        alpha: 0,
+                        duration: 700,
+                        onComplete: () => txt.destroy()
+                    });
+
+                    // Tesla spins out from the slap!
+                    this.tweens.add({
+                        targets: t,
+                        angle: 360,
+                        x: t.x + (t.x > this.player.x ? 120 : -120),
+                        duration: 350,
+                        onComplete: () => t.destroy()
+                    });
+                }
+            });
+
+            if (!slapped) {
+                // Slapped the air
+                this.slapSprite.setPosition(this.player.x + 35, this.player.y - 20).setVisible(true).setScale(1);
+                this.time.delayedCall(150, () => this.slapSprite.setVisible(false));
+            }
+
+        } else if (SELECTED_RIDE === 'rickshaw') {
+            // 🛺 BAPER RASTA ACTION: Ring the Bell ("Tring Tring!")
+            if (window.soundEngine) window.soundEngine.playBell();
+            STATS_BELLS++;
+            this.scoreLabel.setText(this.getScoreText());
+
+            // Scare away road obstacles
+            const ringText = this.add.text(this.player.x, this.player.y - 45, "🔔 TRING TRING! BAPER RASTA?!", {
+                fontFamily: 'Courier New, monospace',
+                fontSize: '14px',
+                color: '#ffcc00',
+                fontStyle: 'bold'
+            }).setOrigin(0.5);
+            this.tweens.add({
+                targets: ringText,
+                y: ringText.y - 35,
+                alpha: 0,
+                duration: 650,
+                onComplete: () => ringText.destroy()
+            });
+
+            // Scatters nearby traffic away
+            this.traffic.children.iterate((tr) => {
+                if (tr && tr.active && Math.abs(tr.y - this.player.y) < 180) {
+                    tr.setVelocityX(tr.x > this.player.x ? 160 : -160);
+                }
+            });
+
+        } else {
+            // 🚌 DHAKA UNLIMITED ACTION: Pneumatic Air Horn ("PAWWWWN!")
+            if (window.soundEngine) window.soundEngine.playAirHorn();
+            STATS_PASSENGERS += 2;
+            this.scoreLabel.setText(this.getScoreText());
+
+            const hornText = this.add.text(this.player.x, this.player.y - 65, "📢 PAWWWWN! MOHAMMADPUR! SIDE DEN!", {
+                fontFamily: 'Courier New, monospace',
+                fontSize: '14px',
+                color: '#ff3366',
+                fontStyle: 'bold'
+            }).setOrigin(0.5);
+            this.tweens.add({
+                targets: hornText,
+                y: hornText.y - 45,
+                alpha: 0,
+                duration: 800,
+                onComplete: () => hornText.destroy()
+            });
+
+            // Blaring horn clears lane ahead
+            this.traffic.children.iterate((tr) => {
+                if (tr && tr.active && tr.y < this.player.y) {
+                    tr.setVelocityX(tr.x > this.player.x ? 250 : -250);
+                }
+            });
+            this.teslas.children.iterate((ts) => {
+                if (ts && ts.active && ts.y < this.player.y) {
+                    ts.setVelocityX(ts.x > this.player.x ? 250 : -250);
+                }
+            });
+        }
+    }
+
+    arriveAtMohammadpur() {
+        this.physics.pause();
+        showRetroModal(
+            "📍 ARRIVED AT MOHAMMADPUR!",
+            `You made it across 8.8 KM from Mirpur to Mohammadpur Town Hall via <b>${SELECTED_RIDE.toUpperCase()}</b>!<br><br>Gifts collected for Momo: <b>${FLOWERS_COLLECTED} Roses & Chocolates</b>.<br><br>Momo is waiting outside her apartment... looking furious!`,
+            ["CONFRONT MOMO & FIX THE DATE"],
+            () => {
+                this.scene.start("LevelBoss");
+            }
+        );
     }
 
     update() {
         const boost = this.cursors.space.isDown || window.gameInputs.actionB;
-        const scrollSpeed = boost ? 18 : 12;
+        const baseSpeed = SELECTED_RIDE === 'bike' ? 14 : SELECTED_RIDE === 'rickshaw' ? 9 : 12;
+        const scrollSpeed = boost ? baseSpeed * 1.5 : baseSpeed;
         this.road.tilePositionY -= scrollSpeed;
 
         const left = this.cursors.left.isDown || window.gameInputs.left;
         const right = this.cursors.right.isDown || window.gameInputs.right;
+        const action = Phaser.Input.Keyboard.JustDown(this.spaceKey) || window.gameInputs.actionA;
 
+        const steerSpeed = SELECTED_RIDE === 'bike' ? 7 : SELECTED_RIDE === 'rickshaw' ? 5 : 6;
         if (left && this.player.x > 240) {
-            this.player.x -= 7;
-            this.player.setAngle(-8);
+            this.player.x -= steerSpeed;
+            if (SELECTED_RIDE === 'bike') this.player.setAngle(-8);
         } else if (right && this.player.x < 720) {
-            this.player.x += 7;
-            this.player.setAngle(8);
+            this.player.x += steerSpeed;
+            if (SELECTED_RIDE === 'bike') this.player.setAngle(8);
         } else {
-            this.player.setAngle(0);
+            if (SELECTED_RIDE === 'bike') this.player.setAngle(0);
+        }
+
+        if (action && !this.actionCooldown) {
+            this.actionCooldown = true;
+            this.handleAction();
+            this.time.delayedCall(220, () => { this.actionCooldown = false; });
         }
     }
 }
 
 // ----------------------------------------------------
-// 11. LEVEL 7: MOMO BOSS BATTLE (Gulshan 2, 14.2 KM)
+// 7. LEVEL BOSS: MOMO DATE SHOWDOWN (Mohammadpur Town Hall)
 // ----------------------------------------------------
 class LevelBoss extends Phaser.Scene {
     constructor() { super("LevelBoss"); }
 
     create() {
-        CURRENT_KM = 14.2;
+        CURRENT_KM = 8.8;
         this.gpsHUD = new DhakaGPSHUD(this);
-        this.gpsHUD.create(CURRENT_KM, "Momo's Residence (Gulshan 2)");
-        this.gpsHUD.showLandmarkToast("Final Destination", "Momo is furious! Neutralize her anger with love hearts!");
+        this.gpsHUD.create(CURRENT_KM, "Mohammadpur Town Hall", "DATE FINALE");
+        this.gpsHUD.showLandmarkToast("Mohammadpur Town Hall", "Momo is furious from waiting! Shoot love hearts to calm her anger!");
 
-        this.add.image(480, 270, 'city').setTint(0x882222);
+        this.add.image(480, 270, 'city').setTint(0x772222);
 
-        // Angry Momo Boss
         this.boss = this.physics.add.sprite(480, 160, 'momo_angry').setScale(0.85);
         this.tweens.add({
             targets: this.boss,
-            x: 650,
-            duration: 2200,
+            x: 660,
+            duration: 2000,
             yoyo: true,
             repeat: -1,
             ease: 'Sine.easeInOut'
         });
 
-        // Player (Lian)
         this.player = this.physics.add.sprite(480, 480, 'l1').setScale(0.8);
 
         this.bossHP = 20;
@@ -1162,7 +1094,7 @@ class LevelBoss extends Phaser.Scene {
 
         this.hpText = this.add.text(20, 60, `Momo's Anger: ${this.bossHP}`, {
             fontFamily: 'Courier New, monospace',
-            fontSize: '22px',
+            fontSize: '20px',
             color: '#ff3333',
             fontStyle: 'bold',
             backgroundColor: '#000000',
@@ -1171,7 +1103,7 @@ class LevelBoss extends Phaser.Scene {
 
         this.pText = this.add.text(760, 60, `Lian HP: ${this.playerHP}`, {
             fontFamily: 'Courier New, monospace',
-            fontSize: '22px',
+            fontSize: '20px',
             color: '#00ff41',
             fontStyle: 'bold',
             backgroundColor: '#000000',
@@ -1179,25 +1111,20 @@ class LevelBoss extends Phaser.Scene {
         });
 
         this.lasers = this.physics.add.group();
-
-        // Boss Attack Loop
         this.attackTimer = this.time.addEvent({
             delay: 1300,
             loop: true,
             callback: () => {
-                const pattern = Phaser.Math.Between(0, 2);
-                if (pattern === 0) {
-                    // Fireball aimed at player
-                    const orb = this.lasers.create(this.boss.x, this.boss.y, 'golla').setScale(0.25);
+                const pat = Phaser.Math.Between(0, 2);
+                if (pat === 0) {
+                    const orb = this.lasers.create(this.boss.x, this.boss.y, 'golla').setScale(0.24);
                     this.physics.moveToObject(orb, this.player, 280);
                     if (window.soundEngine) window.soundEngine.playLaser();
-                } else if (pattern === 1) {
-                    // Fast vertical laser
+                } else if (pat === 1) {
                     const beam = this.lasers.create(this.boss.x, this.boss.y, 'golla').setScale(0.18, 0.7).setTint(0xff0000);
                     beam.setVelocityY(550);
                     if (window.soundEngine) window.soundEngine.playLaser();
                 } else {
-                    // Spread attack
                     for (let i = -1; i <= 1; i++) {
                         const flame = this.lasers.create(this.boss.x, this.boss.y, 'golla').setScale(0.2).setTint(0xff8800);
                         flame.setVelocity(i * 120, 360);
@@ -1206,21 +1133,19 @@ class LevelBoss extends Phaser.Scene {
             }
         });
 
-        // Player takes hit
         this.physics.add.overlap(this.player, this.lasers, (p, l) => {
             l.destroy();
             this.playerHP--;
             if (window.soundEngine) window.soundEngine.playHit();
             this.pText.setText(`Lian HP: ${this.playerHP}`);
-            this.cameras.main.shake(120, 0.01);
+            this.cameras.main.shake(120, 0.015);
             if (this.playerHP <= 0) {
-                showRetroModal("YOU FAINTED!", "Momo's fury overwhelmed you!<br>Lian passed out on the front steps.", ["TRY AGAIN WITH FULL HP"], () => {
+                showRetroModal("MOMO STORMED OFF!", "Momo's anger was too strong!<br>Lian stood alone at Mohammadpur Town Hall.", ["TRY AGAIN WITH FULL HP"], () => {
                     this.scene.restart();
                 });
             }
         });
 
-        // Periodic Relationship Trap Questions
         this.trapTimer = this.time.addEvent({
             delay: 6000,
             loop: true,
@@ -1243,13 +1168,13 @@ class LevelBoss extends Phaser.Scene {
                 if (window.soundEngine) window.soundEngine.playHeart();
                 this.bossHP = Math.max(0, this.bossHP - 4);
                 this.hpText.setText(`Momo's Anger: ${this.bossHP}`);
-                this.gpsHUD.showLandmarkToast("Perfect Answer!", "Momo's anger softened substantially (-4 Anger)!");
+                this.gpsHUD.showLandmarkToast("Great Answer!", "Momo softened noticeably (-4 Anger)!");
                 if (this.bossHP <= 0) this.winGame();
             } else {
                 if (window.soundEngine) window.soundEngine.playHit();
                 this.playerHP = Math.max(1, this.playerHP - 1);
                 this.pText.setText(`Lian HP: ${this.playerHP}`);
-                this.gpsHUD.showLandmarkToast("Wrong Answer!", "Momo's fury increased!");
+                this.gpsHUD.showLandmarkToast("Wrong Answer!", "Momo's fury intensified!");
             }
         });
     }
@@ -1266,9 +1191,7 @@ class LevelBoss extends Phaser.Scene {
             this.boss.setTint(0xff99bb);
             this.time.delayedCall(100, () => this.boss.clearTint());
 
-            if (this.bossHP <= 0) {
-                this.winGame();
-            }
+            if (this.bossHP <= 0) this.winGame();
         });
     }
 
@@ -1296,37 +1219,32 @@ class LevelBoss extends Phaser.Scene {
 }
 
 // ----------------------------------------------------
-// 12. WIN SCENE: Momo Softens & Grand Proposal
+// 8. WIN SCENE: Proposal & Replay Mode Select
 // ----------------------------------------------------
 class WinScene extends Phaser.Scene {
     constructor() { super("WinScene"); }
 
     create() {
         GLOBAL_TIMER = 9999;
-        if (window.soundEngine) {
-            window.soundEngine.playWin();
-        }
+        if (window.soundEngine) window.soundEngine.playWin();
 
         const w = this.scale.width;
-        const h = this.scale.height;
-
         this.cameras.main.setBackgroundColor('#050e06');
         this.add.image(w / 2, 220, 'momo_happy').setScale(0.95);
 
-        this.add.text(w / 2, 60, "💖 MOMO IS FINALLY HAPPY! 💖", {
+        this.add.text(w / 2, 55, "💖 MOMO FORGAVE YOU! 💖", {
             fontFamily: 'Courier New, monospace',
             fontSize: '28px',
             color: '#ff66aa',
             fontStyle: 'bold'
         }).setOrigin(0.5);
 
-        this.add.text(w / 2, 105, "14.2 KM MIRPUR ➔ GULSHAN COMPLETED IN TIME!", {
+        this.add.text(w / 2, 95, `MIRPUR ➔ MOHAMMADPUR DATE ACCOMPLISHED VIA ${SELECTED_RIDE.toUpperCase()}!`, {
             fontFamily: 'Courier New, monospace',
             fontSize: '15px',
             color: '#00ff41'
         }).setOrigin(0.5);
 
-        // Grand Proposal Modal
         this.time.delayedCall(1200, () => {
             this.showProposal();
         });
@@ -1339,7 +1257,7 @@ class WinScene extends Phaser.Scene {
         const mOptions = document.getElementById('modal-options');
 
         mTitle.innerText = "💍 THE ULTIMATE QUESTION";
-        mBody.innerHTML = "Momo holds the fresh flowers & chocolates...<br><br><span style='font-size:22px; color:#ffffff;'><b>Will you be my forever?</b></span>";
+        mBody.innerHTML = `Momo accepts the ${FLOWERS_COLLECTED} fresh flowers & chocolates at Mohammadpur...<br><br><span style='font-size:22px; color:#ffffff;'><b>Will you be my forever?</b></span>`;
         mOptions.innerHTML = `
             <button class="modal-btn" style="background:#006622; color:#fff; font-size:18px; text-align:center;" onclick="winForever()">❤️ YES, ALWAYS & FOREVER</button>
             <button class="modal-btn" style="background:#006622; color:#fff; font-size:18px; text-align:center;" onclick="winForever()">🥰 1000% YES</button>
@@ -1349,14 +1267,12 @@ class WinScene extends Phaser.Scene {
     }
 }
 
-// Dodger button function for "Let me think about it"
 window.dodgeBtn = function(btn) {
     const rx = (Math.random() - 0.5) * 220;
     const ry = (Math.random() - 0.5) * 140;
     btn.style.transform = `translate(${rx}px, ${ry}px)`;
 };
 
-// Grand ending celebration
 window.winForever = function() {
     const modal = document.getElementById('retro-modal');
     if (modal) modal.style.display = 'none';
@@ -1366,20 +1282,19 @@ window.winForever = function() {
     document.body.innerHTML = `
         <div style="width:100vw; height:100vh; background:#000000; color:#00ff41; font-family:'Courier New', monospace; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:20px;">
             <h1 style="color:#ff66aa; font-size:32px; text-shadow:0 0 15px #ff66aa; margin-bottom:10px;">SHE SAID YES! ❤️</h1>
-            <p style="font-size:18px; color:#ffffff; max-width:600px; line-height:1.6;">
-                From sneaking past Baba in Mirpur 10, sprinting through Agargaon, surviving the Poristhan bus, speeding through Hatirjheel on a Pathao bike, to Gulshan 2...
+            <p style="font-size:18px; color:#ffffff; max-width:620px; line-height:1.6;">
+                Sneaking out of Mirpur 10, speeding past Mirpur 1, Kallyanpur, Shyamoli, and Asad Gate on your <b>${SELECTED_RIDE.toUpperCase()}</b> to Mohammadpur Town Hall...
                 <br><br>
                 <b style="color:#ffcc00; font-size:22px;">LIAN & MOMO FOREVER</b>
             </p>
             <div style="margin-top:20px; display:flex; gap:16px;">
-                <button onclick="location.reload()" style="background:#00ff41; color:#000; font-weight:bold; padding:12px 24px; border:none; border-radius:4px; font-family:inherit; font-size:16px; cursor:pointer;">PLAY AGAIN</button>
+                <button onclick="location.reload()" style="background:#00ff41; color:#000; font-weight:bold; padding:12px 24px; border:none; border-radius:4px; font-family:inherit; font-size:16px; cursor:pointer;">PLAY AGAIN (TRY ANOTHER VEHICLE)</button>
             </div>
             <div style="margin-top:30px; font-size:12px; color:#666;">Project Psyco: Momo & Lian — Built with 💚 in Dhaka</div>
         </div>
     `;
 };
 
-// Auto start quiz on load
 window.addEventListener('DOMContentLoaded', () => {
     loadQuestion();
 });

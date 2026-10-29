@@ -1,104 +1,130 @@
-# 🎮 Project Psyco: Momo & Lian (Dhaka Retro Edition)
+# 🎮 Project Psyco: Momo & Lian (Dhaka Date Edition)
 
-[![Release](https://img.shields.io/badge/Release-v2.0.0-00ff41?style=for-the-badge)](https://github.com/MevrickNeal/project-psyco/releases)
+[![Release](https://img.shields.io/badge/Release-v2.1.0-00ff41?style=for-the-badge)](https://github.com/MevrickNeal/project-psyco/releases)
 [![Engine](https://img.shields.io/badge/Engine-Phaser%203.55%20(Offline)-ff007f?style=for-the-badge)](https://phaser.io)
-[![Audio](https://img.shields.io/badge/Audio-Web%20Audio%208--Bit%20Synth-ffcc00?style=for-the-badge)](audio.js)
+[![Modes](https://img.shields.io/badge/Vehicles-Bike%20%7C%20Rickshaw%20%7C%20Bus-ffcc00?style=for-the-badge)](#-3-playable-dhaka-vehicle-modes)
 [![Platform](https://img.shields.io/badge/Platform-Web%20%7C%20Android%20APK%20%7C%20PWA-00bfff?style=for-the-badge)](BUILD_APK_GUIDE.md)
 
-A comedy retro 2D narrative adventure game set across the real streets of **Dhaka, Bangladesh**. Journey **14.2 km** from Mirpur-10 to Gulshan-2 in under 5 minutes to apologize to Momo before she blocks you forever!
+A comedy retro 2D narrative driving & action game set on the streets of **Dhaka, Bangladesh**. Reverse-engineered from viral hits **BD Tesla Slapper**, **Baper Rasta**, and **Dhaka Unlimited**.
+
+Choose between a **Motorbike**, **Rickshaw**, or **Local Bus** to race **8.8 km from Mirpur 10 to Mohammadpur Town Hall** in under 5 minutes to meet Momo for your date!
 
 ---
 
 ## 📖 The Storyline
 
 **3:00 AM — Mirpur 10, Dhaka.**  
-Lian (the boyfriend / "Good Dad") is startled by a sudden notification:
+Lian (the boyfriend / "Good Dad") receives a notification:
 
-> 📱 **MOMO:** *"I HATE YOU. DO NOT CALL ME."*
+> 📱 **MOMO:** *"TUMI EKHONO MOHAMMADPUR ASHONI?! I have been waiting for our date since midnight! I HATE YOU. DO NOT CALL ME."*
 
-Realizing the relationship is in critical danger, Lian has exactly **5 minutes (300 seconds)** to escape his home, navigate Dhaka's night rush hour, collect gifts, bargain with a Pathao rider, dodge crazy traffic on Hatirjheel Expressway, reach Momo's balcony in Gulshan 2, neutralize her rage, and propose!
+Lian must sneak past Baba's flashlight patrol in Mirpur 10, pick his ride at Mirpur Circle, and rush through **8.8 km** of Dhaka traffic across Mirpur 1, Kallyanpur, Shyamoli, and Asad Gate to reach Momo's date spot at **Mohammadpur Town Hall** before the 5-minute timer expires!
 
 ---
 
-## 🗺️ Real-World Dhaka Landmarks & Route (14.2 KM)
+## 🚗 3 Playable Dhaka Vehicle Modes
 
-| Checkpoint | Distance | Landmark | Objective & Dhaka Scenario |
+Reverse-engineered from Bangladesh's most iconic street games:
+
+```
+                          ┌─── 🏍️ BIKE (BD Tesla Slapper) ──────┐
+                          │    Slap erratic battery Teslas!      │
+                          │                                      │
+[Mirpur 10: Sneak Out] ───┼─── 🛺 RICKSHAW (Baper Rasta) ────────┼───▶ [Mohammadpur: Momo Date Boss]
+                          │    Ring the bell, dodge potholes!    │
+                          │                                      │
+                          └─── 🚌 BUS (Dhaka Unlimited) ─────────┘
+                               Blare pneumatic horn, bully cars!
+```
+
+### 1. 🏍️ Bike Ride: BD Tesla Slapper Mode
+*Inspired by `man-zero.com/BD-Tesla-Slapper`*
+- **The Core Mechanic**: Slap erratic battery-operated auto-rickshaws ("BD Tesla") cutting lanes!
+- **Controls**:
+  - `[A]` / `Space`: **SLAP!** (*"THASH!"*) — Regular Tesla slap: **+10 pts**; Wrong-way ("Ulta Rasta") Tesla slap: **+50 pts**!
+  - `[B]` / `Down Arrow`: **Nitro Speed Boost**!
+  - Slapped Teslas spin out 360° off the road!
+
+### 2. 🛺 Rickshaw Ride: Baper Rasta Mode
+*Inspired by `baper-rasta.pages.dev`*
+- **The Core Mechanic**: Drive like it's your father's road! Traditional yellow-hooded Dhaka rickshaw with red fringe.
+- **Controls**:
+  - `[A]` / `Space`: **TRING TRING BELL** — Blasts a double brass bell ringing (*"Baper rasta paicho?!"*), scaring wandering pedestrians and carts to clear your path.
+  - `[B]` / `Down Arrow`: **Turbo Pedal Sprint**!
+
+### 3. 🚌 Bus Ride: Dhaka Unlimited Mode
+*Inspired by `dhakaunlimited.com`*
+- **The Core Mechanic**: Command a heavy Dhaka local bus (Poristhan / Basumati)!
+- **Controls**:
+  - `[A]` / `Space`: **PNEUMATIC AIR HORN** (*"PAWWWWN!"*) — Scares traffic into swerving into other lanes!
+  - `[B]` / `Down Arrow`: **Turbo Diesel Overtake**!
+  - Pick up passengers along bus stops for bonus time.
+
+---
+
+## 🗺️ Real-World Route: Mirpur to Mohammadpur (8.8 KM)
+
+Every vehicle mode takes you across the authentic road network of Dhaka to Momo's place:
+
+| Checkpoint | Distance | Landmark | Dhaka Action & Event |
 |:---|:---:|:---|:---|
-| **1. Mirpur 10** | `0.0 km` | Benarasi Palli & Stadium | Sneak past Baba's flashlight patrol in the living room, find the front door keys, and escape into the night. |
-| **2. Rokeya Sarani** | `2.5 km` | Agargaon Metro Station (MRT Line 6) | Sprint under the elevated metrorail viaduct. Jump over sleeping street dogs and solve engineering paperwork thrown by the boss. |
-| **3. Crescent Lake** | `5.1 km` | Jatiya Sangsad Bhaban (National Parliament) | Free-movement collection round. Collect 10 fresh roses/flowers & chocolates for Momo by Crescent Lake, then board the Poristhan Bus. |
-| **4. Farmgate** | `7.8 km` | Farmgate & Bijoy Sarani Intersection | Top-down highway driving in the legendary Poristhan Bus. Steer through traffic. Bus stalls in Farmgate jam -> **Momo blocks you!** |
-| **5. Mohakhali Flyover** | `9.5 km` | Amtoli & Flyover Entrance | Urgent street negotiation! Bargain with a Pathao motorcycle rider in authentic Banglish (*"Mama 130 taka dibo!"*). |
-| **6. Hatirjheel Expressway** | `12.0 km` | Hatirjheel Lake Loop & Police Plaza | High-speed night motorcycle rush! Weave between CNG auto-rickshaws and potholes (*"Bhanga Rasta"*). Real GPS distance counter ticks to 0. |
-| **7. Gulshan 2** | `14.2 km` | Momo's Residence & Lake Park | **The Boss Battle:** Angry Momo attacks with fireballs and laser beams. Shoot love hearts to lower her anger and answer tricky relationship traps! |
-| **Finale** | `14.2 km` | Proposal & Victory Celebration | Momo turns happy! Answer the ultimate question: *"Will you be my forever?"* with celebratory chiptune fanfare & fireworks. |
+| **1. Mirpur 10** | `0.0 km` | Benarasi Palli & Mirpur Stadium | Sneak past Baba's flashlight patrol in the living room and pick your vehicle. |
+| **2. Mirpur 1** | `2.2 km` | Sony Cinema & Mazar Road | Hit the open road! Battery Teslas begin erratic overtaking. |
+| **3. Technical Mor** | `4.1 km` | Kallyanpur Bus Terminals | Heavy highway traffic crossroads. Speed through truck and CNG bottlenecks. |
+| **4. Shyamoli Square** | `5.8 km` | Shishu Mela & Foot-Overbridge | Pick up 10 fragrant fresh roses & chocolates along the roadside stalls for Momo! |
+| **5. Asad Gate** | `7.2 km` | Historic Asad Gate & St. Joseph | Turn into Mohammadpur! The final high-speed sprint. |
+| **6. Mohammadpur Town Hall** | `8.8 km` | Town Hall Market & Salimullah Road | **Arrival at Momo's apartment!** Face Momo's date wrath and win her back! |
+
+---
+
+## 💖 The Mohammadpur Date Finale (Boss Battle & Proposal)
+
+When you reach Mohammadpur Town Hall:
+1. **Momo Boss Battle**: Momo is hangry and furious from waiting. She throws fireballs and laser tantrums!
+2. **Love Heart Ammo**: Press `[A]` or `Space` to shoot love hearts, offering the roses and chocolates you collected along the road.
+3. **Relationship Trap Questions**: Answer her tricky relationship questions (*"Do I look fat?", "Who took longer to get ready?", "I said It's fine. What did that mean?"*). Answering correctly calms her anger (-4 Anger)!
+4. **The Ultimate Question**: When Momo turns happy (`momo_happy`), she asks:
+   > 💍 **"Will you be my forever?"**
+   - `[YES, ALWAYS & FOREVER ❤️]`
+   - `[1000% YES 🥰]`
+   - `[Let me think about it... (Playfully darts away from mouse/touch cursor!)]`
 
 ---
 
 ## 🕹️ Controls
 
-The game features automatic detection for both **Desktop Keyboard** and **Mobile Touchscreens**:
-
-### 💻 Desktop Keyboard
-- **Move / Steer**: `Arrow Keys` or `W`, `A`, `S`, `D`
-- **Jump / Action A**: `Spacebar` / `Up Arrow` / `W` (Fires Love Hearts in Boss Battle)
-- **Duck / Action B / Nitro Boost**: `Down Arrow` / `S` / `Shift`
-- **Skip Protocol**: Press `O` on keyboard during evaluation quiz to jump straight to the 3:00 AM rush.
-
-### 📱 Mobile Touch Controls
-- **Virtual D-Pad (Left)**: Smooth responsive 4-direction directional pad with visual touch glow and haptic vibration (`navigator.vibrate`).
-- **Action A Button (Right)**: Jump / Collect / Shoot Love Hearts.
-- **Action B Button (Right)**: Slide / Duck / Nitro Turbo Boost.
-- **Top Toolbar**: 🔊 Mute/Unmute audio and ⛶ Fullscreen toggle.
+- **Desktop Keyboard**:
+  - `Arrow Keys` or `W, A, S, D`: Steer & Accelerate
+  - `Spacebar` / `Up Arrow`: Action A (Slap in Bike, Bell in Rickshaw, Air Horn in Bus, Love Hearts in Boss)
+  - `Down Arrow` / `Shift`: Action B (Nitro / Turbo Boost)
+  - `O`: Skip evaluation quiz directly to 3:00 AM rush
+- **Mobile Touch**:
+  - Left Virtual D-Pad (Up, Down, Left, Right)
+  - Right Buttons: `A` (Action / Slap / Bell / Horn / Heart) and `B` (Nitro / Turbo)
+  - Fullscreen toggle & Sound Mute in top toolbar
 
 ---
 
-## 🚀 How to Play
+## 🚀 How to Run & Play
 
-### Option 1: 1-Click Play on Laptop (Recommended)
-1. Double-click [`start_game.bat`](start_game.bat).
-2. The game starts instantly at `http://localhost:8080` in your default browser.
+### 💻 1-Click Play on Laptop:
+Double-click [`start_game.bat`](start_game.bat) — it boots the local server and automatically launches `http://localhost:8080`.
 
-### Option 2: 1-Tap Offline App on Android Phone (Dedicated App)
-1. Run `start_game.bat` on your laptop.
-2. Note the yellow local IP address shown (e.g., `http://192.168.1.5:8080`).
-3. Connect your Android phone to the same Wi-Fi (or your laptop's Mobile Hotspot).
-4. Open Chrome on your phone and navigate to `http://<laptop-ip>:8080`.
-5. Tap Chrome's menu (`⋮`) and tap **"Install App"** (or **"Add to Home Screen"**).
-6. **Done!** The game installs directly as a fullscreen offline app on your phone with custom launcher icon, 0 latency, and no address bar!
+### 📱 1-Tap Dedicated App on Android:
+1. Run `start_game.bat` on laptop.
+2. Open Chrome on your phone to the printed IP (e.g., `http://192.168.x.x:8080`).
+3. Tap Chrome Menu (`⋮`) ➔ **"Install App"** (or **"Add to Home Screen"**).
+4. Launches full screen offline without internet!
 
-### Option 3: GitHub Pages (Instant Global Play)
-1. Go to your repository settings on GitHub: [github.com/MevrickNeal/project-psyco](https://github.com/MevrickNeal/project-psyco)
-2. Click **Pages** in the left sidebar.
-3. Under **Branch**, select `main` and save.
-4. Your game is immediately live at:  
-   👉 **`https://mevrickneal.github.io/project-psyco/`**
-
----
-
-## 📦 Dedicated Android Studio APK Project
-
-A complete, pre-configured native Android application is included in:
-[`android-apk-project/`](android-apk-project/)
-
-- Pre-synced offline assets in `app/src/main/assets/`
-- Fullscreen immersive `MainActivity.java` with hardware acceleration enabled
-- Android 5.0 (API 21) to Android 14 (API 34) support
-- Open `android-apk-project/` in Android Studio and click **Build > Build APK(s)** to generate `app-debug.apk` anytime. Full instructions in [`BUILD_APK_GUIDE.md`](BUILD_APK_GUIDE.md).
-
----
-
-## ⚙️ Architecture & Technical Highlights
-
-- **100% Offline Capability**: Built-in [`phaser.min.js`](phaser.min.js), Service Worker cache ([`sw.js`](sw.js)), and Web App Manifest ([`manifest.json`](manifest.json)).
-- **Synthesized Retro Audio Engine ([`audio.js`](audio.js))**: Zero external MP3 downloads. A pure Web Audio API oscillator synthesizer generating square, sawtooth, and triangle retro sound effects and melodic chiptunes.
-- **Cyberpunk Dialog Modals**: Completely removed blocking browser `alert()` and `prompt()` dialogs, replacing them with animated in-canvas terminal dialogs that never break mobile fullscreen.
-- **Smooth 60 FPS Viewport**: Scaled at `960x540` 16:9 widescreen with `Phaser.Scale.FIT`, fitting modern high-refresh rate mobile screens without distortion or letterbox clipping.
+### 🌐 GitHub Pages Live Demo:
+Playable globally at:  
+👉 **`https://mevrickneal.github.io/project-psyco/`**
 
 ---
 
 ## 📜 Credits
 
-- **Story & Code**: Lian Mollick ([@MevrickNeal](https://github.com/MevrickNeal))
+- **Creator & Dev**: Lian Mollick ([@MevrickNeal](https://github.com/MevrickNeal))
 - **Dedicated to**: Momo 💖
-- **Built with**: 💚 in Dhaka, Bangladesh
+- **Mechanics Inspired By**: *BD Tesla Slapper* (man-zero), *Baper Rasta* (baperrasta.pages.dev), and *Dhaka Unlimited* (dhakaunlimited.com).
+- **Built with**: 💚 in Dhaka, Bangladesh.

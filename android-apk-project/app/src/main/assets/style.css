@@ -1,6 +1,7 @@
-/* ==========================================
-   RETRO CYBERPUNK DHAKA THEME & RESPONSIVE UI
-   ========================================== */
+/* ===============================================================
+   PROJECT PSYCO: RETRO CYBERPUNK DHAKA THEME & RESPONSIVE UI
+   Mobile & Desktop Dual Optimization | Zero Lag | Immersive CRT
+   =============================================================== */
 
 * {
     box-sizing: border-box;
@@ -15,26 +16,26 @@ html, body {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    background-color: #040804;
+    background-color: #020603;
     color: #00ff41;
     font-family: 'Courier New', Courier, monospace;
 }
 
-/* CRT SCANLINE & PHOSPHOR OVERLAY */
+/* CRT SCANLINE & VINTAGE PHOSPHOR OVERLAY */
 .crt-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%),
-                linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.04));
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
     background-size: 100% 3px, 4px 100%;
     pointer-events: none;
     z-index: 99999;
 }
 
-/* TOP TOOLBAR: AUDIO & FULLSCREEN */
+/* PERSISTENT TOP TOOLBAR */
 #top-toolbar {
     position: fixed;
     top: 6px;
@@ -48,13 +49,13 @@ html, body {
     background: rgba(0, 0, 0, 0.85);
     border: 1px solid #00ff41;
     color: #00ff41;
-    padding: 6px 10px;
+    padding: 6px 12px;
     font-size: 12px;
     font-family: inherit;
     font-weight: bold;
     cursor: pointer;
     border-radius: 4px;
-    box-shadow: 0 0 5px rgba(0, 255, 65, 0.3);
+    box-shadow: 0 0 6px rgba(0, 255, 65, 0.3);
 }
 
 .tool-btn:active {
@@ -62,148 +63,26 @@ html, body {
     color: #000;
 }
 
-/* QUIZ CONTAINER */
-#quiz-ui {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: absolute;
-    top: 0;
-    left: 0;
-    padding: 12px;
-    z-index: 100;
-}
-
-.quiz-card {
-    width: 100%;
-    max-width: 640px;
-    max-height: 94vh;
-    overflow-y: auto;
-    text-align: center;
-    background: rgba(4, 12, 6, 0.94);
-    padding: 24px 20px;
-    border: 2px solid #00ff41;
-    box-shadow: 0 0 25px rgba(0, 255, 65, 0.25), inset 0 0 15px rgba(0, 255, 65, 0.1);
-    border-radius: 6px;
-}
-
-h1 {
-    font-size: 20px;
-    letter-spacing: 2px;
-    border-bottom: 2px solid #00ff41;
-    padding-bottom: 8px;
-    margin-top: 0;
-    margin-bottom: 16px;
-    text-shadow: 0 0 8px #00ff41;
-}
-
-#question-tracker {
-    font-size: 13px;
-    color: #ffcc00;
-    margin-bottom: 8px;
-    letter-spacing: 1px;
-}
-
-#question-display {
-    font-size: 17px;
-    line-height: 1.4;
-    margin-bottom: 20px;
-    min-height: 48px;
-    font-weight: bold;
-    color: #ffffff;
-    text-shadow: 0 0 4px #00ff41;
-}
-
-#options-display {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 16px;
-}
-
-.quiz-btn {
-    background: #000000;
-    border: 1px solid #00ff41;
-    color: #00ff41;
-    padding: 12px 16px;
-    font-family: inherit;
-    font-size: 15px;
-    cursor: pointer;
-    transition: 0.15s ease;
-    text-align: left;
-    border-radius: 4px;
-}
-
-.quiz-btn:hover, .quiz-btn:active {
-    background: #00ff41;
-    color: #000000;
-    box-shadow: 0 0 12px #00ff41;
-    font-weight: bold;
-}
-
-.quiz-skip-link {
-    font-size: 12px;
-    color: #888888;
-    text-decoration: underline;
-    cursor: pointer;
-    margin-top: 10px;
-    display: inline-block;
-}
-
-/* PROGRESS BAR */
-#progress-bar {
-    width: 100%;
-    height: 8px;
-    background: #111;
-    border: 1px solid #00ff41;
-    margin-top: 12px;
-    border-radius: 4px;
-    overflow: hidden;
-}
-
-#progress-fill {
-    width: 0%;
-    height: 100%;
-    background: #00ff41;
-    box-shadow: 0 0 8px #00ff41;
-    transition: width 0.3s ease;
-}
-
-/* PHASER GAME WRAPPER */
+/* PHASER CANVAS WRAPPER (ALWAYS VISIBLE & FULLSCREEN) */
 #game-wrapper {
-    display: none;
+    display: block;
     width: 100vw;
     height: 100vh;
     margin: 0;
     padding: 0;
     background: #000000;
     overflow: hidden;
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
+    z-index: 10;
 }
 
 #game-wrapper canvas {
     display: block;
     margin: 0 auto;
     image-rendering: pixelated;
-}
-
-/* GLITCH EFFECT */
-.glitch {
-    animation: glitch-anim 0.25s infinite;
-    filter: invert(100%);
-}
-
-@keyframes glitch-anim {
-    0% { transform: translate(0) }
-    20% { transform: translate(-3px, 2px) }
-    40% { transform: translate(-2px, -3px) }
-    60% { transform: translate(3px, 1px) }
-    80% { transform: translate(1px, -2px) }
-    100% { transform: translate(0) }
+    touch-action: none;
 }
 
 /* RETRO IN-GAME MODAL SYSTEM */
@@ -215,7 +94,7 @@ h1 {
     width: 100vw;
     height: 100vh;
     background: rgba(0, 0, 0, 0.85);
-    z-index: 20000;
+    z-index: 25000;
     justify-content: center;
     align-items: center;
     padding: 16px;
@@ -227,7 +106,7 @@ h1 {
     background: #020904;
     border: 2px solid #00ff41;
     box-shadow: 0 0 25px rgba(0, 255, 65, 0.4);
-    padding: 20px;
+    padding: 22px;
     border-radius: 6px;
     text-align: center;
     animation: popIn 0.2s ease-out;
@@ -250,13 +129,13 @@ h1 {
     font-size: 15px;
     color: #ffffff;
     margin-bottom: 18px;
-    line-height: 1.4;
+    line-height: 1.45;
 }
 
 .modal-options {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
 }
 
 .modal-btn {
@@ -278,9 +157,9 @@ h1 {
     color: #000;
 }
 
-/* ON-SCREEN VIRTUAL TOUCH CONTROLS */
+/* ON-SCREEN ERGONOMIC MOBILE TOUCH GAMEPAD */
 #virtual-controls {
-    display: none;
+    display: block;
     position: fixed;
     bottom: 0;
     left: 0;
@@ -301,8 +180,8 @@ h1 {
 
 .dpad-btn {
     position: absolute;
-    width: 42px;
-    height: 42px;
+    width: 44px;
+    height: 44px;
     background: rgba(0, 30, 10, 0.65);
     border: 2px solid rgba(0, 255, 65, 0.5);
     color: #00ff41;
@@ -318,17 +197,17 @@ h1 {
 .dpad-btn:active, .dpad-btn.active {
     background: rgba(0, 255, 65, 0.7);
     color: #000;
-    box-shadow: 0 0 10px #00ff41;
+    box-shadow: 0 0 12px #00ff41;
 }
 
-.dpad-up    { top: 0; left: 44px; }
-.dpad-down  { bottom: 0; left: 44px; }
-.dpad-left  { top: 44px; left: 0; }
-.dpad-right { top: 44px; right: 0; }
+.dpad-up    { top: 0; left: 43px; }
+.dpad-down  { bottom: 0; left: 43px; }
+.dpad-left  { top: 43px; left: 0; }
+.dpad-right { top: 43px; right: 0; }
 
 .action-container {
     position: absolute;
-    bottom: 24px;
+    bottom: 22px;
     right: 18px;
     display: flex;
     gap: 16px;
@@ -336,10 +215,10 @@ h1 {
 }
 
 .action-btn {
-    width: 60px;
-    height: 60px;
-    background: rgba(40, 10, 0, 0.65);
-    border: 2px solid rgba(255, 80, 80, 0.6);
+    width: 62px;
+    height: 62px;
+    background: rgba(45, 10, 0, 0.65);
+    border: 2px solid rgba(255, 80, 80, 0.65);
     color: #ff5555;
     border-radius: 50%;
     display: flex;
@@ -348,22 +227,22 @@ h1 {
     font-size: 18px;
     font-weight: bold;
     user-select: none;
-    box-shadow: 0 0 8px rgba(255, 50, 50, 0.3);
+    box-shadow: 0 0 10px rgba(255, 50, 50, 0.35);
 }
 
 .action-btn:active, .action-btn.active {
     background: rgba(255, 50, 50, 0.85);
     color: #fff;
-    box-shadow: 0 0 15px #ff3333;
+    box-shadow: 0 0 16px #ff3333;
 }
 
 .action-b {
-    background: rgba(0, 20, 40, 0.65);
-    border-color: rgba(80, 180, 255, 0.6);
+    background: rgba(0, 25, 45, 0.65);
+    border-color: rgba(80, 180, 255, 0.65);
     color: #50b4ff;
-    width: 52px;
-    height: 52px;
-    margin-top: 10px;
+    width: 54px;
+    height: 54px;
+    margin-top: 8px;
 }
 
 .action-b:active, .action-b.active {
@@ -371,19 +250,17 @@ h1 {
     color: #000;
 }
 
-/* MOBILE ADAPTATION */
-@media (max-width: 768px) {
-    .quiz-card {
-        padding: 16px 12px;
-    }
-    h1 {
-        font-size: 17px;
-    }
-    #question-display {
-        font-size: 15px;
-    }
-    .quiz-btn {
-        font-size: 14px;
-        padding: 10px 12px;
-    }
+/* GLITCH EFFECT */
+.glitch {
+    animation: glitch-anim 0.25s infinite;
+    filter: invert(100%);
+}
+
+@keyframes glitch-anim {
+    0% { transform: translate(0) }
+    20% { transform: translate(-3px, 2px) }
+    40% { transform: translate(-2px, -3px) }
+    60% { transform: translate(3px, 1px) }
+    80% { transform: translate(1px, -2px) }
+    100% { transform: translate(0) }
 }

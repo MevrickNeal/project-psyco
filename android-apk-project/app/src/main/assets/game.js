@@ -1,21 +1,20 @@
 // ============================================================================
 // PROJECT PSYCO: MOMO & LIAN (DHAKA RETRO DATE EDITION)
-// Reverse Engineered: BD Tesla Slapper + Baper Rasta + Dhaka Unlimited
-// Route: Mirpur 10 to Mohammadpur (8.8 KM) via Bike, Rickshaw, or Bus
+// Dual Platform: Phone Touch & PC (WASD / Arrows / Space / Enter)
+// Zero Black-Screen Guarantee with Procedural Fallback Engine
 // ============================================================================
 
-// Global Game State
-var GLOBAL_TIMER = 300; // 5:00 minutes total
+var GLOBAL_TIMER = 300;
 var CURRENT_KM = 0.0;
 var GLOBAL_SCORE = 0;
-var SELECTED_RIDE = 'bike'; // 'bike' (Tesla Slapper) | 'rickshaw' (Baper Rasta) | 'bus' (Dhaka Unlimited)
+var SELECTED_RIDE = 'bike'; // 'bike' | 'rickshaw' | 'bus'
 var STATS_SLAPS = 0;
 var STATS_BELLS = 0;
 var STATS_PASSENGERS = 0;
 var FLOWERS_COLLECTED = 0;
 var GAME_INSTANCE = null;
 
-// Unified Input State
+// Unified Mobile & Desktop Input State
 window.gameInputs = {
     left: false,
     right: false,
@@ -24,106 +23,6 @@ window.gameInputs = {
     actionA: false,
     actionB: false
 };
-
-// ==========================================
-// PART 1: EVALUATION PROTOCOL QUIZ
-// ==========================================
-const quizData = [
-    { q: "You see a child trip. Do you laugh?", a: ["A. Yes, loudly", "B. Internal chuckle", "C. No, I help them"] },
-    { q: "Is chaos a ladder or a headache?", a: ["A. Ladder", "B. Headache"] },
-    { q: "Do you manipulate situations for fun?", a: ["A. Often", "B. Sometimes", "C. Never"] },
-    { q: "If you kill a bug, do you feel sad?", a: ["A. No", "B. Maybe a little"] },
-    { q: "Are emotions inefficient?", a: ["A. Yes", "B. Depends on the emotion"] },
-    { q: "Do you get bored of 'nice' people?", a: ["A. Yes, they are boring", "B. No, they are safe"] },
-    { q: "Is revenge a dish best served cold?", a: ["A. Yes", "B. Frozen solid"] },
-    { q: "Can you lie without blinking?", a: ["A. Easy", "B. Try me"] },
-    { q: "Do you plan conversations in advance?", a: ["A. Always", "B. No, I wing it"] },
-    { q: "Are you the 'Psychopath' in this relationship?", a: ["A. Yes", "B. 100%"] },
-    { q: "WAIT. Recalibrating... Are you the Boyfriend?", a: ["A. No", "B. I am the MAN"] },
-    { q: "Who screams when they see a cockroach?", a: ["A. Me", "B. Him (High pitched scream)"] },
-    { q: "If he gets a simple cold, what happens?", a: ["A. Takes meds", "B. Writes his Last Will & Testament"] },
-    { q: "Who actually carries the heavy grocery bags?", a: ["A. Me, obviously", "B. His back hurts"] },
-    { q: "When getting ready to go out, who takes longer?", a: ["A. Me", "B. Him (Fixing his hair for 40 mins)"] },
-    { q: "Who is the 'Little Spoon' when cuddling?", a: ["A. Me", "B. Him (He needs to be held tenderly)"] },
-    { q: "When he gets hungry, does he become...", a: ["A. A normal human", "B. An absolute Drama Queen"] },
-    { q: "Who checks the scary noise at night?", a: ["A. Me with a cricket bat", "B. He hides under blanket"] },
-    { q: "How much attention does he require daily?", a: ["A. Standard amount", "B. Needy Toddler Level"] },
-    { q: "Does he secretly steal your skincare products?", a: ["A. No", "B. Yes, and denies it with glowing skin"] },
-    { q: "If you are both tired, who complains more?", a: ["A. Me", "B. Him (Dramatic sighs & whining)"] },
-    { q: "Who is more dramatic about minor injuries?", a: ["A. Me", "B. Him (Papercut = Emergency Surgery)"] },
-    { q: "Does he require a specific pillow to sleep?", a: ["A. No", "B. Yes, he is very delicate"] },
-    { q: "FINAL DIAGNOSIS: Is your boyfriend a PRINCESS?", a: ["A. Yes", "B. 1000% Yes"] },
-    { q: "CALCULATING FINAL RESULT...", a: ["[ VIEW TRUTH ]"] }
-];
-
-let qIndex = 0;
-const ui = document.getElementById('quiz-ui');
-const qBox = document.getElementById('question-display');
-const oBox = document.getElementById('options-display');
-const qTrack = document.getElementById('question-tracker');
-const pFill = document.getElementById('progress-fill');
-
-function loadQuestion() {
-    if (qIndex >= quizData.length) {
-        endQuiz();
-        return;
-    }
-    const data = quizData[qIndex];
-    if (qTrack) qTrack.innerText = `EVALUATION ${qIndex + 1} / ${quizData.length}`;
-    if (pFill) pFill.style.width = `${((qIndex + 1) / quizData.length) * 100}%`;
-    qBox.innerText = data.q;
-    oBox.innerHTML = "";
-
-    data.a.forEach(ans => {
-        const btn = document.createElement('button');
-        btn.className = 'quiz-btn';
-        btn.innerText = ans;
-        btn.onclick = () => {
-            if (window.soundEngine) window.soundEngine.playSelect();
-            qIndex++;
-            loadQuestion();
-        };
-        oBox.appendChild(btn);
-    });
-}
-
-function endQuiz() {
-    qBox.innerText = "CALCULATING PATERNAL INSTINCTS...";
-    oBox.innerHTML = "";
-    if (window.soundEngine) window.soundEngine.playSelect();
-
-    setTimeout(() => {
-        qBox.innerHTML = "RESULT: <br><span style='font-size:26px; color:#ffffff; text-shadow:0 0 10px #00ff41;'>YOU ARE A GOOD DAD.</span>";
-        setTimeout(() => {
-            document.body.classList.add('glitch');
-            if (window.soundEngine) window.soundEngine.playHit();
-            setTimeout(() => {
-                document.body.classList.remove('glitch');
-                forceStartGame();
-            }, 1200);
-        }, 2500);
-    }, 1500);
-}
-
-function forceStartGame() {
-    if (ui) ui.style.display = 'none';
-    const gw = document.getElementById('game-wrapper');
-    if (gw) gw.style.display = 'block';
-    const vc = document.getElementById('virtual-controls');
-    if (vc) vc.style.display = 'block';
-
-    if (window.soundEngine) {
-        window.soundEngine.init();
-        window.soundEngine.startBgm();
-    }
-    initPhaserGame();
-}
-
-document.addEventListener('keydown', (e) => {
-    if (e.key.toLowerCase() === 'o') {
-        if (ui && ui.style.display !== 'none') forceStartGame();
-    }
-});
 
 // ==========================================
 // IN-GAME RETRO MODAL HELPER
@@ -162,7 +61,7 @@ function setupTouchControls() {
         const el = document.getElementById(elemId);
         if (!el) return;
         const setVal = (val, e) => {
-            e.preventDefault();
+            if (e.cancelable) e.preventDefault();
             window.gameInputs[inputKey] = val;
             if (val) {
                 el.classList.add('active');
@@ -171,10 +70,10 @@ function setupTouchControls() {
                 el.classList.remove('active');
             }
         };
-        el.addEventListener('pointerdown', (e) => setVal(true, e));
-        el.addEventListener('pointerup', (e) => setVal(false, e));
-        el.addEventListener('pointercancel', (e) => setVal(false, e));
-        el.addEventListener('pointerleave', (e) => setVal(false, e));
+        el.addEventListener('pointerdown', (e) => setVal(true, e), { passive: false });
+        el.addEventListener('pointerup', (e) => setVal(false, e), { passive: false });
+        el.addEventListener('pointercancel', (e) => setVal(false, e), { passive: false });
+        el.addEventListener('pointerleave', (e) => setVal(false, e), { passive: false });
     };
 
     bindTouch('btn-left', 'left');
@@ -197,7 +96,7 @@ const trapQuestions = [
 ];
 
 // ==========================================
-// PART 2: PHASER ARCHITECTURE & RETRO SPRITES
+// PHASER GAME ENGINE INITIALIZATION
 // ==========================================
 function initPhaserGame() {
     if (GAME_INSTANCE) return;
@@ -208,6 +107,7 @@ function initPhaserGame() {
         width: 960,
         height: 540,
         pixelArt: true,
+        backgroundColor: '#020603',
         scale: {
             mode: Phaser.Scale.FIT,
             autoCenter: Phaser.Scale.CENTER_BOTH
@@ -222,7 +122,7 @@ function initPhaserGame() {
         scene: [
             BootScene,
             UIScene,
-            IntroScene,
+            TitleScene,
             LevelSneak,
             RideSelectScene,
             LevelRoadRush,
@@ -236,12 +136,39 @@ function initPhaserGame() {
 }
 
 // ----------------------------------------------------
-// 1. BOOT SCENE: Assets & Procedural Retro Vehicles
+// 1. BOOT SCENE: Fast Preload & Procedural Fallbacks
 // ----------------------------------------------------
 class BootScene extends Phaser.Scene {
     constructor() { super("Boot"); }
 
     preload() {
+        const w = this.scale.width;
+        const h = this.scale.height;
+
+        // Visual Retro Loading Bar
+        const loadText = this.add.text(w / 2, h / 2 - 30, "PREPARING DHAKA STREETS...", {
+            fontFamily: 'Courier New, monospace',
+            fontSize: '18px',
+            color: '#00ff41',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+
+        const progressBox = this.add.graphics();
+        progressBox.lineStyle(2, 0x00ff41, 1);
+        progressBox.strokeRect(w / 2 - 160, h / 2, 320, 20);
+
+        const progressBar = this.add.graphics();
+        this.load.on('progress', (val) => {
+            progressBar.clear();
+            progressBar.fillStyle(0x00ff41, 1);
+            progressBar.fillRect(w / 2 - 156, h / 2 + 4, 312 * val, 12);
+        });
+
+        // Fail-safe: Prevent any load error from halting boot
+        this.load.on('loaderror', (file) => {
+            console.warn('[AssetLoader] Fallback will be used for:', file.key);
+        });
+
         this.load.path = 'assets/sprites/';
 
         this.load.image('home', 'home.jpg');
@@ -270,102 +197,121 @@ class BootScene extends Phaser.Scene {
     }
 
     create() {
-        // Generate Procedural Textures for Dhaka Vehicles & Slap VFX
-        this.createProceduralTextures();
+        this.createProceduralFallbacks();
 
         // Animations
-        this.anims.create({
-            key: 'run',
-            frames: [
-                { key: 'l1' }, { key: 'l2' }, { key: 'l3' }, { key: 'l4' }, { key: 'l5' },
-                { key: 'l6' }, { key: 'l7' }, { key: 'l8' }, { key: 'l9' }, { key: 'l10' }
-            ],
-            frameRate: 15,
-            repeat: -1
-        });
+        if (this.textures.exists('l1')) {
+            this.anims.create({
+                key: 'run',
+                frames: [
+                    { key: 'l1' }, { key: 'l2' }, { key: 'l3' }, { key: 'l4' }, { key: 'l5' },
+                    { key: 'l6' }, { key: 'l7' }, { key: 'l8' }, { key: 'l9' }, { key: 'l10' }
+                ],
+                frameRate: 15,
+                repeat: -1
+            });
+        }
 
-        this.anims.create({
-            key: 'baba_walk',
-            frames: [{ key: 'baba_w1' }, { key: 'baba_w2' }, { key: 'baba_w3' }],
-            frameRate: 6,
-            repeat: -1
-        });
+        if (this.textures.exists('baba_w1')) {
+            this.anims.create({
+                key: 'baba_walk',
+                frames: [{ key: 'baba_w1' }, { key: 'baba_w2' }, { key: 'baba_w3' }],
+                frameRate: 6,
+                repeat: -1
+            });
+        }
 
         this.scene.launch("UIScene");
-        this.scene.start("IntroScene");
+        this.scene.start("TitleScene");
     }
 
-    createProceduralTextures() {
-        // 1. "BD Tesla" (Erratic Battery Auto-Rickshaw)
-        if (!this.textures.exists('bd_tesla')) {
-            const canvas = this.textures.createCanvas('bd_tesla', 52, 90);
-            const ctx = canvas.context;
-            // Roof / Chassis
-            ctx.fillStyle = '#00bb55'; // Vibrant Dhaka Green
+    createProceduralFallbacks() {
+        // Fallback generator helper
+        const makeTexture = (key, w, h, drawFn) => {
+            if (!this.textures.exists(key)) {
+                const canvas = this.textures.createCanvas(key, w, h);
+                drawFn(canvas.context, w, h);
+                canvas.refresh();
+            }
+        };
+
+        // 1. "BD Tesla" Battery Auto-Rickshaw
+        makeTexture('bd_tesla', 52, 90, (ctx) => {
+            ctx.fillStyle = '#00bb55';
             ctx.fillRect(6, 12, 40, 68);
-            // Yellow front hood
             ctx.fillStyle = '#ffcc00';
             ctx.fillRect(10, 2, 32, 14);
-            // Black windshield
             ctx.fillStyle = '#111111';
             ctx.fillRect(12, 16, 28, 14);
-            // Battery Box / Solar roof decal
             ctx.fillStyle = '#005522';
             ctx.fillRect(14, 34, 24, 36);
-            // Headlights
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(10, 0, 8, 4);
             ctx.fillRect(34, 0, 8, 4);
-            canvas.refresh();
-        }
+        });
 
         // 2. "Baper Rasta" Traditional Dhaka Rickshaw
-        if (!this.textures.exists('dhaka_rickshaw')) {
-            const canvas = this.textures.createCanvas('dhaka_rickshaw', 54, 96);
-            const ctx = canvas.context;
-            // Passenger Hood (Rickshaw Hood Yellow & Red)
-            ctx.fillStyle = '#ffcc00'; // Yellow Hood
+        makeTexture('dhaka_rickshaw', 54, 96, (ctx) => {
+            ctx.fillStyle = '#ffcc00';
             ctx.fillRect(8, 40, 38, 46);
-            ctx.fillStyle = '#ee2233'; // Red Seat & Fringe
+            ctx.fillStyle = '#ee2233';
             ctx.fillRect(12, 46, 30, 30);
-            // Driver Frame & Handlebar
             ctx.fillStyle = '#333333';
             ctx.fillRect(24, 18, 6, 24);
             ctx.fillRect(14, 22, 26, 4);
-            // Front Wheel
             ctx.fillStyle = '#111111';
             ctx.fillRect(25, 4, 4, 16);
-            // Two Rear Wheels
             ctx.fillRect(4, 55, 4, 26);
             ctx.fillRect(46, 55, 4, 26);
-            // Driver Head / T-Shirt
             ctx.fillStyle = '#2277bb';
             ctx.beginPath();
             ctx.arc(27, 28, 7, 0, Math.PI * 2);
             ctx.fill();
-            canvas.refresh();
-        }
+        });
 
-        // 3. Comic Slap Hand Sprite
-        if (!this.textures.exists('slap_hand')) {
-            const canvas = this.textures.createCanvas('slap_hand', 48, 48);
-            const ctx = canvas.context;
+        // 3. Comic Slap Hand
+        makeTexture('slap_hand', 48, 48, (ctx) => {
             ctx.fillStyle = '#ffcc88';
             ctx.beginPath();
             ctx.arc(24, 26, 14, 0, Math.PI * 2);
             ctx.fill();
-            // Fingers
             for (let i = 0; i < 4; i++) {
                 ctx.fillRect(13 + i * 6, 6, 5, 16);
             }
-            // Thumb
             ctx.fillRect(36, 20, 8, 6);
-            // Outline
             ctx.strokeStyle = '#ffffff';
             ctx.lineWidth = 2;
             ctx.stroke();
-            canvas.refresh();
-        }
+        });
+
+        // 4. City Background Fallback
+        makeTexture('city', 960, 540, (ctx, w, h) => {
+            ctx.fillStyle = '#0a1612';
+            ctx.fillRect(0, 0, w, h);
+            ctx.fillStyle = '#143022';
+            for (let x = 0; x < w; x += 40) {
+                const bH = 120 + Math.sin(x) * 60;
+                ctx.fillRect(x, h - bH - 60, 36, bH);
+            }
+        });
+
+        // 5. Road Background Fallback
+        makeTexture('road', 720, 1080, (ctx, w, h) => {
+            ctx.fillStyle = '#1e2420';
+            ctx.fillRect(0, 0, w, h);
+            ctx.fillStyle = '#ffcc00';
+            for (let y = 0; y < h; y += 80) {
+                ctx.fillRect(w / 2 - 5, y, 10, 40);
+            }
+        });
+
+        // 6. Home Background Fallback
+        makeTexture('home', 960, 540, (ctx, w, h) => {
+            ctx.fillStyle = '#102016';
+            ctx.fillRect(0, 0, w, h);
+            ctx.fillStyle = '#1a3625';
+            ctx.fillRect(40, 40, w - 80, h - 80);
+        });
     }
 }
 
@@ -420,75 +366,148 @@ class UIScene extends Phaser.Scene {
 }
 
 // ----------------------------------------------------
-// 3. INTRO SCENE: 3:00 AM Crisis (Mohammadpur Date)
+// 3. TITLE & INTRO SCENE: Atmospheric, Zero-Blackscreen
+// Responsive to: Screen Tap, Enter, Space, WASD, Arrows
 // ----------------------------------------------------
-class IntroScene extends Phaser.Scene {
-    constructor() { super("IntroScene"); }
+class TitleScene extends Phaser.Scene {
+    constructor() { super("TitleScene"); }
 
     create() {
         const w = this.scale.width;
         const h = this.scale.height;
-        this.cameras.main.setBackgroundColor('#020603');
 
-        this.add.text(w / 2, 120, "3:00 AM — MIRPUR 10, DHAKA", {
+        this.add.image(w / 2, h / 2, 'city').setDisplaySize(w, h).setAlpha(0.4);
+
+        // Retro Glowing Title
+        const title = this.add.text(w / 2, 75, "💖 PROJECT PSYCO: MOMO & LIAN 💖", {
             fontFamily: 'Courier New, monospace',
-            fontSize: '26px',
+            fontSize: '28px',
+            color: '#ff66aa',
+            fontStyle: 'bold',
+            stroke: '#000000',
+            strokeThickness: 4
+        }).setOrigin(0.5);
+
+        this.tweens.add({
+            targets: title,
+            scaleX: 1.04,
+            scaleY: 1.04,
+            duration: 900,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
+
+        this.add.text(w / 2, 115, "A 3:00 AM DHAKA DATE ADVENTURE (MIRPUR ➔ MOHAMMADPUR)", {
+            fontFamily: 'Courier New, monospace',
+            fontSize: '14px',
+            color: '#00ff41',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+
+        // Story Dialogue Card
+        const cardBg = this.add.rectangle(w / 2, 240, 720, 175, 0x041007, 0.92)
+            .setStrokeStyle(2, 0x00ff41);
+
+        const msg1 = this.add.text(w / 2, 190, "📱 MOMO (3:00 AM): \"TUMI EKHONO MOHAMMADPUR ASHONI?!\"", {
+            fontFamily: 'Courier New, monospace',
+            fontSize: '17px',
+            color: '#ff3333',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+
+        const msg2 = this.add.text(w / 2, 230, "\"I have been waiting at Town Hall! Don't call me. Goodbye!\"", {
+            fontFamily: 'Courier New, monospace',
+            fontSize: '14px',
+            color: '#ffcc00'
+        }).setOrigin(0.5);
+
+        const msg3 = this.add.text(w / 2, 280, "LIAN: \"5 minutes to sneak out & race 8.8 km to Mohammadpur!\"", {
+            fontFamily: 'Courier New, monospace',
+            fontSize: '15px',
             color: '#ffffff',
             fontStyle: 'bold'
         }).setOrigin(0.5);
 
-        this.time.delayedCall(1200, () => {
-            if (window.soundEngine) window.soundEngine.playTone(880, 'sine', 0.1);
-            this.add.text(w / 2, 200, "📩 EMERGENCY MESSAGE FROM MOMO", {
-                fontFamily: 'Courier New, monospace',
-                fontSize: '19px',
-                color: '#ffcc00',
-                backgroundColor: '#051808',
-                padding: { x: 10, y: 6 }
-            }).setOrigin(0.5);
-        });
-
-        this.time.delayedCall(2400, () => {
-            if (window.soundEngine) window.soundEngine.playHit();
-            this.add.text(w / 2, 280, "\"TUMI EKHONO MOHAMMADPUR ASHONI?! I HATE YOU!\"", {
-                fontFamily: 'Courier New, monospace',
-                fontSize: '23px',
-                color: '#ff3333',
-                fontStyle: 'bold'
-            }).setOrigin(0.5);
-        });
-
-        this.time.delayedCall(3800, () => {
-            this.add.text(w / 2, 360, "LIAN: \"Our date at Town Hall! I must sneak out and get to Mohammadpur right now!\"", {
-                fontFamily: 'Courier New, monospace',
-                fontSize: '16px',
-                color: '#00ff41',
-                align: 'center'
-            }).setOrigin(0.5);
-        });
-
-        const startBtn = this.add.text(w / 2, 450, "[ TAP OR PRESS ENTER TO SNEAK OUT OF HOME ]", {
+        // Big Pulsing Interactive Start Banner
+        this.startBtn = this.add.text(w / 2, 395, "[ 🎮 TAP SCREEN OR PRESS ENTER / SPACE / WASD TO START! ]", {
             fontFamily: 'Courier New, monospace',
-            fontSize: '17px',
+            fontSize: '18px',
             color: '#000000',
             backgroundColor: '#00ff41',
             fontStyle: 'bold',
-            padding: { x: 18, y: 10 }
+            padding: { x: 22, y: 12 }
         }).setOrigin(0.5).setInteractive();
 
-        const proceed = () => {
-            if (window.soundEngine) window.soundEngine.playSelect();
+        this.tweens.add({
+            targets: this.startBtn,
+            alpha: 0.85,
+            scaleX: 1.03,
+            scaleY: 1.03,
+            duration: 600,
+            yoyo: true,
+            repeat: -1
+        });
+
+        // Controls Helper Footer
+        this.add.text(w / 2, 475, "⌨️ PC: WASD / Arrow Keys + Space/Enter | 📱 PHONE: Left D-Pad + Right A/B Buttons", {
+            fontFamily: 'Courier New, monospace',
+            fontSize: '12px',
+            color: '#888888'
+        }).setOrigin(0.5);
+
+        // Start Handlers (Supports all input methods)
+        let started = false;
+        const startGame = () => {
+            if (started) return;
+            started = true;
+            if (window.soundEngine) {
+                window.soundEngine.init();
+                window.soundEngine.playSelect();
+                window.soundEngine.startBgm();
+            }
             this.scene.start("LevelSneak");
         };
 
-        startBtn.on('pointerdown', proceed);
-        this.input.keyboard.on('keydown-ENTER', proceed);
-        this.input.keyboard.on('keydown-SPACE', proceed);
+        // Pointer / Touch on Button or Anywhere on Canvas
+        this.startBtn.on('pointerdown', startGame);
+        this.input.on('pointerdown', startGame);
+
+        // Keyboard: Enter, Space, WASD, Arrow keys
+        const keys = [
+            Phaser.Input.Keyboard.KeyCodes.ENTER,
+            Phaser.Input.Keyboard.KeyCodes.SPACE,
+            Phaser.Input.Keyboard.KeyCodes.W,
+            Phaser.Input.Keyboard.KeyCodes.A,
+            Phaser.Input.Keyboard.KeyCodes.S,
+            Phaser.Input.Keyboard.KeyCodes.D,
+            Phaser.Input.Keyboard.KeyCodes.UP,
+            Phaser.Input.Keyboard.KeyCodes.DOWN,
+            Phaser.Input.Keyboard.KeyCodes.LEFT,
+            Phaser.Input.Keyboard.KeyCodes.RIGHT
+        ];
+
+        keys.forEach(k => {
+            this.input.keyboard.on(`keydown-${k}`, startGame);
+        });
+    }
+
+    update() {
+        // Also support virtual touch inputs on mobile
+        if (window.gameInputs.actionA || window.gameInputs.actionB || window.gameInputs.up || window.gameInputs.down) {
+            if (window.soundEngine) {
+                window.soundEngine.init();
+                window.soundEngine.playSelect();
+                window.soundEngine.startBgm();
+            }
+            this.scene.start("LevelSneak");
+        }
     }
 }
 
 // ----------------------------------------------------
 // 4. LEVEL 1: SNEAK OUT OF HOME (Mirpur 10, 0.0 KM)
+// Dual Controls: WASD + Arrows + Virtual Touch Gamepad
 // ----------------------------------------------------
 class LevelSneak extends Phaser.Scene {
     constructor() { super("LevelSneak"); }
@@ -497,7 +516,7 @@ class LevelSneak extends Phaser.Scene {
         CURRENT_KM = 0.0;
         this.gpsHUD = new DhakaGPSHUD(this);
         this.gpsHUD.create(CURRENT_KM, "Mirpur 10 (Home)", "ON FOOT");
-        this.gpsHUD.showLandmarkToast("Mirpur 10", "Sneak past Baba to unlock the front door!");
+        this.gpsHUD.showLandmarkToast("Mirpur 10", "Sneak past Baba to grab front door keys!");
 
         this.add.image(480, 270, 'home').setDisplaySize(960, 540);
 
@@ -519,7 +538,8 @@ class LevelSneak extends Phaser.Scene {
         this.player.setCollideWorldBounds(true);
         this.physics.add.collider(this.player, this.walls);
 
-        this.baba = this.physics.add.sprite(620, 200, 'baba_idle').setScale(0.6).play('baba_walk');
+        this.baba = this.physics.add.sprite(620, 200, 'baba_idle').setScale(0.6);
+        if (this.anims.exists('baba_walk')) this.baba.play('baba_walk');
         this.baba.body.setSize(45, 45).setOffset(20, 80);
 
         this.alertText = this.add.text(this.baba.x, this.baba.y - 60, '', {
@@ -554,7 +574,7 @@ class LevelSneak extends Phaser.Scene {
                 this.keySprite.destroy();
                 this.keyText.destroy();
                 this.doorLabel.setText("EXIT\nOPEN!").setColor('#00ff41');
-                this.gpsHUD.showLandmarkToast("Door Key Collected", "Now head to front door to pick your ride!");
+                this.gpsHUD.showLandmarkToast("Key Collected!", "Now sneak to the front door!");
             }
         });
 
@@ -586,6 +606,7 @@ class LevelSneak extends Phaser.Scene {
             this.time.delayedCall(400, () => this.moveBaba());
         }
 
+        // Dual Keyboard (WASD + Arrows) & Touch Inputs
         const left = this.cursors.left.isDown || this.wasd.left.isDown || window.gameInputs.left;
         const right = this.cursors.right.isDown || this.wasd.right.isDown || window.gameInputs.right;
         const up = this.cursors.up.isDown || this.wasd.up.isDown || window.gameInputs.up;
@@ -597,19 +618,19 @@ class LevelSneak extends Phaser.Scene {
         if (left) {
             this.player.setVelocityX(-speed);
             this.player.flipX = true;
-            this.player.anims.play('run', true);
+            if (this.anims.exists('run')) this.player.anims.play('run', true);
         } else if (right) {
             this.player.setVelocityX(speed);
             this.player.flipX = false;
-            this.player.anims.play('run', true);
+            if (this.anims.exists('run')) this.player.anims.play('run', true);
         }
 
         if (up) {
             this.player.setVelocityY(-speed);
-            this.player.anims.play('run', true);
+            if (this.anims.exists('run')) this.player.anims.play('run', true);
         } else if (down) {
             this.player.setVelocityY(speed);
-            this.player.anims.play('run', true);
+            if (this.anims.exists('run')) this.player.anims.play('run', true);
         }
 
         if (!left && !right && !up && !down) {
@@ -638,13 +659,13 @@ class LevelSneak extends Phaser.Scene {
 
 // ----------------------------------------------------
 // 5. RIDE SELECT SCENE: 3 Dhaka Modes to Mohammadpur
+// Keyboard: 1 / 2 / 3 or Click/Tap
 // ----------------------------------------------------
 class RideSelectScene extends Phaser.Scene {
     constructor() { super("RideSelectScene"); }
 
     create() {
         const w = this.scale.width;
-        const h = this.scale.height;
         this.cameras.main.setBackgroundColor('#020904');
 
         this.add.text(w / 2, 35, "🚕 CHOOSE YOUR RIDE TO MOHAMMADPUR DATE 🚕", {
@@ -662,30 +683,45 @@ class RideSelectScene extends Phaser.Scene {
 
         // Card 1: 🏍️ BIKE: BD Tesla Slapper
         this.createRideCard(
-            170, 270, "🏍️ BIKE RUSH", "BD Tesla Slapper Mode",
-            "Fast & agile! Slap erratic battery Teslas (+10/+50 pts)!\n[A/Space]: SLAP | [B/Down]: Nitro Boost",
+            170, 270, "1. 🏍️ BIKE RUSH", "BD Tesla Slapper Mode",
+            "Slap erratic battery Teslas (+10/+50 pts)!\n[A/Space/Enter]: SLAP | [B/S/Down]: Boost",
             0x00e5ff, 'bike', 'hunda_top', 0.5
         );
 
         // Card 2: 🛺 RICKSHAW: Baper Rasta
         this.createRideCard(
-            480, 270, "🛺 RICKSHAW", "Baper Rasta Mode",
-            "Drive like it's your father's road! Ring the bell!\n[A/Space]: TRING BELL | [B/Down]: Turbo Pedal",
+            480, 270, "2. 🛺 RICKSHAW", "Baper Rasta Mode",
+            "Drive like it's your father's road! Ring bell!\n[A/Space/Enter]: BELL | [B/S/Down]: Turbo",
             0xffcc00, 'rickshaw', 'dhaka_rickshaw', 1.0
         );
 
         // Card 3: 🚌 BUS: Dhaka Unlimited
         this.createRideCard(
-            790, 270, "🚌 LOCAL BUS", "Dhaka Unlimited Mode",
-            "Heavy transport! Blare pneumatic air horn to clear traffic!\n[A/Space]: AIR HORN | [B/Down]: Turbo Diesel",
+            790, 270, "3. 🚌 LOCAL BUS", "Dhaka Unlimited Mode",
+            "Heavy transport! Blare pneumatic horn at cars!\n[A/Space/Enter]: AIR HORN | [B/S/Down]: Throttle",
             0xff3366, 'bus', 'bus_top', 0.55
         );
 
-        this.add.text(w / 2, 495, "💡 Every mode takes you to Momo's Date Spot in Mohammadpur!", {
+        this.add.text(w / 2, 495, "💡 Every ride takes you to Momo's Date Spot in Mohammadpur!", {
             fontFamily: 'Courier New, monospace',
             fontSize: '13px',
             color: '#888888'
         }).setOrigin(0.5);
+
+        // Keyboard shortcuts 1, 2, 3
+        this.input.keyboard.on('keydown-ONE', () => this.selectRide('bike'));
+        this.input.keyboard.on('keydown-TWO', () => this.selectRide('rickshaw'));
+        this.input.keyboard.on('keydown-THREE', () => this.selectRide('bus'));
+    }
+
+    selectRide(modeKey) {
+        SELECTED_RIDE = modeKey;
+        if (window.soundEngine) {
+            if (modeKey === 'bike') window.soundEngine.playSlap();
+            else if (modeKey === 'rickshaw') window.soundEngine.playBell();
+            else window.soundEngine.playAirHorn();
+        }
+        this.scene.start("LevelRoadRush");
     }
 
     createRideCard(x, y, title, subtitle, desc, strokeColor, modeKey, spriteKey, scale) {
@@ -696,7 +732,7 @@ class RideSelectScene extends Phaser.Scene {
 
         const t1 = this.add.text(0, -145, title, {
             fontFamily: 'Courier New, monospace',
-            fontSize: '18px',
+            fontSize: '17px',
             color: '#ffffff',
             fontStyle: 'bold'
         }).setOrigin(0.5);
@@ -728,16 +764,7 @@ class RideSelectScene extends Phaser.Scene {
 
         card.add([bg, t1, t2, icon, descText, btn]);
 
-        const selectThis = () => {
-            SELECTED_RIDE = modeKey;
-            if (window.soundEngine) {
-                if (modeKey === 'bike') window.soundEngine.playSlap();
-                else if (modeKey === 'rickshaw') window.soundEngine.playBell();
-                else window.soundEngine.playAirHorn();
-            }
-            this.scene.start("LevelRoadRush");
-        };
-
+        const selectThis = () => this.selectRide(modeKey);
         bg.on('pointerdown', selectThis);
         btn.setInteractive().on('pointerdown', selectThis);
 
@@ -748,7 +775,7 @@ class RideSelectScene extends Phaser.Scene {
 
 // ----------------------------------------------------
 // 6. LEVEL: DHAKA ROAD RUSH (Mirpur 10 -> Mohammadpur, 8.8 KM)
-// Incorporating BD Tesla Slapper / Baper Rasta / Dhaka Unlimited
+// Dual Controls: WASD + Arrows + Virtual Touch Gamepad
 // ----------------------------------------------------
 class LevelRoadRush extends Phaser.Scene {
     constructor() { super("LevelRoadRush"); }
@@ -760,10 +787,8 @@ class LevelRoadRush extends Phaser.Scene {
         this.gpsHUD.create(CURRENT_KM, "Mirpur 10 Circle", modeTitle);
         this.gpsHUD.showLandmarkToast("Starting Date Rush", `Mode: ${modeTitle} | Destination: Mohammadpur Town Hall!`);
 
-        // Road Parallax TileSprite
         this.road = this.add.tileSprite(480, 270, 960, 540, 'road');
 
-        // Vehicle Setup based on selection
         if (SELECTED_RIDE === 'bike') {
             this.player = this.physics.add.sprite(480, 440, 'hunda_top').setScale(0.5);
             this.player.body.setSize(40, 85);
@@ -775,15 +800,12 @@ class LevelRoadRush extends Phaser.Scene {
             this.player.body.setSize(55, 130);
         }
 
-        // Slap hand sprite for Bike Mode
         this.slapSprite = this.add.sprite(0, 0, 'slap_hand').setVisible(false).setDepth(200);
 
-        // Groups: Teslas, Traffic Vehicles, Gifts (Flowers/Chocos)
         this.teslas = this.physics.add.group();
         this.traffic = this.physics.add.group();
         this.gifts = this.physics.add.group();
 
-        // Mode Specific Score Display
         this.scoreBox = this.add.container(18, 55).setScrollFactor(0).setDepth(9000);
         const sBg = this.add.rectangle(80, 0, 160, 28, 0x000000, 0.85).setStrokeStyle(1, 0x00ff41);
         this.scoreLabel = this.add.text(80, 0, this.getScoreText(), {
@@ -794,7 +816,6 @@ class LevelRoadRush extends Phaser.Scene {
         }).setOrigin(0.5);
         this.scoreBox.add([sBg, this.scoreLabel]);
 
-        // Spawners
         this.spawner = this.time.addEvent({
             delay: SELECTED_RIDE === 'bike' ? 850 : 1000,
             callback: this.spawnRoadObstacles,
@@ -802,7 +823,6 @@ class LevelRoadRush extends Phaser.Scene {
             loop: true
         });
 
-        // Gift Spawner (Flowers & Chocos along Shyamoli / Asad Gate for Momo)
         this.giftSpawner = this.time.addEvent({
             delay: 1600,
             callback: () => {
@@ -818,12 +838,11 @@ class LevelRoadRush extends Phaser.Scene {
             loop: true
         });
 
-        // Overlaps
         this.physics.add.overlap(this.player, this.gifts, (p, g) => {
             g.destroy();
             FLOWERS_COLLECTED++;
             if (window.soundEngine) window.soundEngine.playCollect();
-            this.gpsHUD.showLandmarkToast("Date Gift Collected!", `Picked up roses & chocolates (${FLOWERS_COLLECTED} collected)!`);
+            this.gpsHUD.showLandmarkToast("Date Gift Collected!", `Picked up fresh roses & chocolates (${FLOWERS_COLLECTED} collected)!`);
         });
 
         this.physics.add.overlap(this.player, this.traffic, (p, t) => {
@@ -834,7 +853,6 @@ class LevelRoadRush extends Phaser.Scene {
         });
 
         this.physics.add.overlap(this.player, this.teslas, (p, t) => {
-            // Collision with Tesla
             t.destroy();
             if (window.soundEngine) window.soundEngine.playHit();
             this.cameras.main.shake(180, 0.02);
@@ -842,7 +860,6 @@ class LevelRoadRush extends Phaser.Scene {
             this.gpsHUD.showLandmarkToast("CRASH!", "Erratic Tesla bumped into you! -6s");
         });
 
-        // Distance & Landmark Progression to Mohammadpur (8.8 KM)
         this.distCovered = 0.0;
         this.kmTimer = this.time.addEvent({
             delay: 350,
@@ -852,7 +869,6 @@ class LevelRoadRush extends Phaser.Scene {
                 this.distCovered += step;
                 CURRENT_KM = parseFloat(this.distCovered.toFixed(1));
 
-                // Checkpoint Triggers
                 let currentLandmark = "Mirpur 10 Circle";
                 if (CURRENT_KM >= 7.5) currentLandmark = "Mohammadpur Town Hall";
                 else if (CURRENT_KM >= 6.5) currentLandmark = "Asad Gate & St. Joseph";
@@ -872,7 +888,14 @@ class LevelRoadRush extends Phaser.Scene {
         });
 
         this.cursors = this.input.keyboard.createCursorKeys();
+        this.wasd = this.input.keyboard.addKeys({
+            up: Phaser.Input.Keyboard.KeyCodes.W,
+            down: Phaser.Input.Keyboard.KeyCodes.S,
+            left: Phaser.Input.Keyboard.KeyCodes.A,
+            right: Phaser.Input.Keyboard.KeyCodes.D
+        });
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+        this.enterKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
     }
 
     getScoreText() {
@@ -886,15 +909,13 @@ class LevelRoadRush extends Phaser.Scene {
         const isTesla = Math.random() > 0.45;
 
         if (isTesla) {
-            // Spawn erratic Battery Tesla
             const isWrongWay = Math.random() > 0.55;
             const speed = isWrongWay ? 460 : 320;
             const tesla = this.teslas.create(x, -90, 'bd_tesla').setScale(0.85).setVelocityY(speed);
             tesla.isWrongWay = isWrongWay;
-            if (isWrongWay) tesla.setTint(0xff5555); // Red glow for wrong side!
+            if (isWrongWay) tesla.setTint(0xff5555);
             tesla.body.setSize(44, 80);
         } else {
-            // Regular Traffic (Bus or Car)
             const bus = this.traffic.create(x, -110, 'bus_top').setScale(0.5).setVelocityY(380);
             bus.body.setSize(50, 120);
         }
@@ -902,10 +923,8 @@ class LevelRoadRush extends Phaser.Scene {
 
     handleAction() {
         if (SELECTED_RIDE === 'bike') {
-            // 💥 BD TESLA SLAPPER ACTION: Slap nearby Teslas!
             if (window.soundEngine) window.soundEngine.playSlap();
 
-            // Find closest Tesla within slap range
             let slapped = false;
             this.teslas.children.iterate((t) => {
                 if (t && t.active && Phaser.Math.Distance.Between(this.player.x, this.player.y, t.x, t.y) < 130) {
@@ -915,7 +934,6 @@ class LevelRoadRush extends Phaser.Scene {
                     GLOBAL_SCORE += pts;
                     this.scoreLabel.setText(this.getScoreText());
 
-                    // Visual Slap Animation
                     this.slapSprite.setPosition(t.x, t.y).setVisible(true).setScale(1.2);
                     this.tweens.add({
                         targets: this.slapSprite,
@@ -928,7 +946,6 @@ class LevelRoadRush extends Phaser.Scene {
                         }
                     });
 
-                    // Floating Slap Text
                     const txt = this.add.text(t.x, t.y - 20, t.isWrongWay ? "💥 ULTA RASTA! +50" : "👋 THASH! +10", {
                         fontFamily: 'Courier New, monospace',
                         fontSize: '16px',
@@ -943,7 +960,6 @@ class LevelRoadRush extends Phaser.Scene {
                         onComplete: () => txt.destroy()
                     });
 
-                    // Tesla spins out from the slap!
                     this.tweens.add({
                         targets: t,
                         angle: 360,
@@ -955,18 +971,15 @@ class LevelRoadRush extends Phaser.Scene {
             });
 
             if (!slapped) {
-                // Slapped the air
                 this.slapSprite.setPosition(this.player.x + 35, this.player.y - 20).setVisible(true).setScale(1);
                 this.time.delayedCall(150, () => this.slapSprite.setVisible(false));
             }
 
         } else if (SELECTED_RIDE === 'rickshaw') {
-            // 🛺 BAPER RASTA ACTION: Ring the Bell ("Tring Tring!")
             if (window.soundEngine) window.soundEngine.playBell();
             STATS_BELLS++;
             this.scoreLabel.setText(this.getScoreText());
 
-            // Scare away road obstacles
             const ringText = this.add.text(this.player.x, this.player.y - 45, "🔔 TRING TRING! BAPER RASTA?!", {
                 fontFamily: 'Courier New, monospace',
                 fontSize: '14px',
@@ -981,7 +994,6 @@ class LevelRoadRush extends Phaser.Scene {
                 onComplete: () => ringText.destroy()
             });
 
-            // Scatters nearby traffic away
             this.traffic.children.iterate((tr) => {
                 if (tr && tr.active && Math.abs(tr.y - this.player.y) < 180) {
                     tr.setVelocityX(tr.x > this.player.x ? 160 : -160);
@@ -989,7 +1001,6 @@ class LevelRoadRush extends Phaser.Scene {
             });
 
         } else {
-            // 🚌 DHAKA UNLIMITED ACTION: Pneumatic Air Horn ("PAWWWWN!")
             if (window.soundEngine) window.soundEngine.playAirHorn();
             STATS_PASSENGERS += 2;
             this.scoreLabel.setText(this.getScoreText());
@@ -1008,7 +1019,6 @@ class LevelRoadRush extends Phaser.Scene {
                 onComplete: () => hornText.destroy()
             });
 
-            // Blaring horn clears lane ahead
             this.traffic.children.iterate((tr) => {
                 if (tr && tr.active && tr.y < this.player.y) {
                     tr.setVelocityX(tr.x > this.player.x ? 250 : -250);
@@ -1026,7 +1036,7 @@ class LevelRoadRush extends Phaser.Scene {
         this.physics.pause();
         showRetroModal(
             "📍 ARRIVED AT MOHAMMADPUR!",
-            `You made it across 8.8 KM from Mirpur to Mohammadpur Town Hall via <b>${SELECTED_RIDE.toUpperCase()}</b>!<br><br>Gifts collected for Momo: <b>${FLOWERS_COLLECTED} Roses & Chocolates</b>.<br><br>Momo is waiting outside her apartment... looking furious!`,
+            `You made it across 8.8 KM from Mirpur to Mohammadpur Town Hall via <b>${SELECTED_RIDE.toUpperCase()}</b>!<br><br>Gifts collected for Momo: <b>${FLOWERS_COLLECTED} Roses & Chocolates</b>.<br><br>Momo is waiting outside... looking furious!`,
             ["CONFRONT MOMO & FIX THE DATE"],
             () => {
                 this.scene.start("LevelBoss");
@@ -1035,14 +1045,14 @@ class LevelRoadRush extends Phaser.Scene {
     }
 
     update() {
-        const boost = this.cursors.space.isDown || window.gameInputs.actionB;
+        const boost = this.cursors.down.isDown || this.wasd.down.isDown || window.gameInputs.actionB;
         const baseSpeed = SELECTED_RIDE === 'bike' ? 14 : SELECTED_RIDE === 'rickshaw' ? 9 : 12;
         const scrollSpeed = boost ? baseSpeed * 1.5 : baseSpeed;
         this.road.tilePositionY -= scrollSpeed;
 
-        const left = this.cursors.left.isDown || window.gameInputs.left;
-        const right = this.cursors.right.isDown || window.gameInputs.right;
-        const action = Phaser.Input.Keyboard.JustDown(this.spaceKey) || window.gameInputs.actionA;
+        const left = this.cursors.left.isDown || this.wasd.left.isDown || window.gameInputs.left;
+        const right = this.cursors.right.isDown || this.wasd.right.isDown || window.gameInputs.right;
+        const action = Phaser.Input.Keyboard.JustDown(this.spaceKey) || Phaser.Input.Keyboard.JustDown(this.enterKey) || window.gameInputs.actionA;
 
         const steerSpeed = SELECTED_RIDE === 'bike' ? 7 : SELECTED_RIDE === 'rickshaw' ? 5 : 6;
         if (left && this.player.x > 240) {
@@ -1065,6 +1075,7 @@ class LevelRoadRush extends Phaser.Scene {
 
 // ----------------------------------------------------
 // 7. LEVEL BOSS: MOMO DATE SHOWDOWN (Mohammadpur Town Hall)
+// Dual Controls: WASD + Arrows + Virtual Touch Gamepad
 // ----------------------------------------------------
 class LevelBoss extends Phaser.Scene {
     constructor() { super("LevelBoss"); }
@@ -1155,7 +1166,14 @@ class LevelBoss extends Phaser.Scene {
 
         this.hearts = this.physics.add.group();
         this.cursors = this.input.keyboard.createCursorKeys();
+        this.wasd = this.input.keyboard.addKeys({
+            up: Phaser.Input.Keyboard.KeyCodes.W,
+            down: Phaser.Input.Keyboard.KeyCodes.S,
+            left: Phaser.Input.Keyboard.KeyCodes.A,
+            right: Phaser.Input.Keyboard.KeyCodes.D
+        });
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+        this.enterKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
     }
 
     triggerTrapQuestion() {
@@ -1203,9 +1221,9 @@ class LevelBoss extends Phaser.Scene {
     }
 
     update() {
-        const left = this.cursors.left.isDown || window.gameInputs.left;
-        const right = this.cursors.right.isDown || window.gameInputs.right;
-        const shoot = Phaser.Input.Keyboard.JustDown(this.spaceKey) || window.gameInputs.actionA;
+        const left = this.cursors.left.isDown || this.wasd.left.isDown || window.gameInputs.left;
+        const right = this.cursors.right.isDown || this.wasd.right.isDown || window.gameInputs.right;
+        const shoot = Phaser.Input.Keyboard.JustDown(this.spaceKey) || Phaser.Input.Keyboard.JustDown(this.enterKey) || this.wasd.up.isDown || window.gameInputs.actionA;
 
         if (left && this.player.x > 180) this.player.x -= 6;
         if (right && this.player.x < 780) this.player.x += 6;
@@ -1295,6 +1313,7 @@ window.winForever = function() {
     `;
 };
 
+// Auto start game on page load
 window.addEventListener('DOMContentLoaded', () => {
-    loadQuestion();
+    initPhaserGame();
 });

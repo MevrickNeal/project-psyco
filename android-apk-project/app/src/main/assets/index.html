@@ -7,10 +7,10 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#00ff41">
-    <title>Project Psyco: Momo & Lian (Dhaka Edition)</title>
+    <title>Project Psyco: Momo & Lian (Dhaka Date Edition)</title>
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
-    <!-- Local offline Phaser 3 Engine -->
+    <!-- Local Offline Phaser 3 Engine -->
     <script src="phaser.min.js"></script>
     <script src="audio.js"></script>
     <script src="dhaka_map.js"></script>
@@ -26,24 +26,10 @@
         <button id="fs-btn" class="tool-btn" onclick="toggleFullscreen()">⛶ FULLSCREEN</button>
     </div>
 
-    <!-- PART 1: RETRO PSYCHOPATH & PRINCESS EVALUATION QUIZ -->
-    <div id="quiz-ui">
-        <div class="quiz-card">
-            <h1 id="header-text">PSYCH_EVAL_PROTOCOL_v9.2</h1>
-            <div id="question-tracker">EVALUATION 1 / 25</div>
-            <div id="question-display">INITIALIZING NEURAL INTERFACE...</div>
-            <div id="options-display"></div>
-            <div id="progress-bar"><div id="progress-fill"></div></div>
-            <div style="margin-top: 14px;">
-                <span class="quiz-skip-link" onclick="forceStartGame()">[⏩ SKIP PROTOCOL - JUMP TO 3:00 AM RUSH]</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- PART 2: PHASER RETRO CANVAS WRAPPER -->
+    <!-- PHASER RETRO CANVAS WRAPPER (INSTANT LAUNCH) -->
     <div id="game-wrapper"></div>
 
-    <!-- PART 3: IN-GAME RETRO MODAL SYSTEM -->
+    <!-- IN-GAME RETRO MODAL SYSTEM (For Trap Questions & Proposal) -->
     <div id="retro-modal">
         <div class="modal-box">
             <div class="modal-title" id="modal-title">TERMINAL PROMPT</div>
@@ -52,7 +38,7 @@
         </div>
     </div>
 
-    <!-- PART 4: ERGONOMIC MOBILE TOUCH GAMEPAD -->
+    <!-- ERGONOMIC MOBILE TOUCH GAMEPAD -->
     <div id="virtual-controls">
         <div class="dpad-container">
             <div class="dpad-btn dpad-up" id="btn-up">▲</div>
@@ -74,10 +60,8 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js').then((reg) => {
-                    console.log('Offline ServiceWorker registered successfully:', reg.scope);
-                }).catch((err) => {
-                    console.log('ServiceWorker registration skipped (normal for non-https/file protocol):', err);
-                });
+                    console.log('Offline ServiceWorker registered:', reg.scope);
+                }).catch(() => {});
             });
         }
 

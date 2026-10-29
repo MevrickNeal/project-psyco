@@ -1,0 +1,9 @@
+# Build and temporary files
+*.zip
+*.log
+.gradle/
+build/
+android-apk-project/app/build/
+android-apk-project/.gradle/
+.DS_Store
+Thumbs.db

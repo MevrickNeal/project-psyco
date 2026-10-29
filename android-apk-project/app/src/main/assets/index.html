@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#00ff41">
+    <title>Project Psyco: Momo & Lian (Dhaka Edition)</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+    <!-- Local offline Phaser 3 Engine -->
+    <script src="phaser.min.js"></script>
+    <script src="audio.js"></script>
+    <script src="dhaka_map.js"></script>
+</head>
+<body>
+
+    <!-- CRT SCANLINE & VINTAGE OVERLAY -->
+    <div class="crt-overlay"></div>
+
+    <!-- PERSISTENT TOP TOOLBAR -->
+    <div id="top-toolbar">
+        <button id="mute-btn" class="tool-btn" onclick="toggleAudio()">🔊 SOUND: ON</button>
+        <button id="fs-btn" class="tool-btn" onclick="toggleFullscreen()">⛶ FULLSCREEN</button>
+    </div>
+
+    <!-- PART 1: RETRO PSYCHOPATH & PRINCESS EVALUATION QUIZ -->
+    <div id="quiz-ui">
+        <div class="quiz-card">
+            <h1 id="header-text">PSYCH_EVAL_PROTOCOL_v9.2</h1>
+            <div id="question-tracker">EVALUATION 1 / 25</div>
+            <div id="question-display">INITIALIZING NEURAL INTERFACE...</div>
+            <div id="options-display"></div>
+            <div id="progress-bar"><div id="progress-fill"></div></div>
+            <div style="margin-top: 14px;">
+                <span class="quiz-skip-link" onclick="forceStartGame()">[⏩ SKIP PROTOCOL - JUMP TO 3:00 AM RUSH]</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- PART 2: PHASER RETRO CANVAS WRAPPER -->
+    <div id="game-wrapper"></div>
+
+    <!-- PART 3: IN-GAME RETRO MODAL SYSTEM -->
+    <div id="retro-modal">
+        <div class="modal-box">
+            <div class="modal-title" id="modal-title">TERMINAL PROMPT</div>
+            <div class="modal-body" id="modal-body">Question text here</div>
+            <div class="modal-options" id="modal-options"></div>
+        </div>
+    </div>
+
+    <!-- PART 4: ERGONOMIC MOBILE TOUCH GAMEPAD -->
+    <div id="virtual-controls">
+        <div class="dpad-container">
+            <div class="dpad-btn dpad-up" id="btn-up">▲</div>
+            <div class="dpad-btn dpad-down" id="btn-down">▼</div>
+            <div class="dpad-btn dpad-left" id="btn-left">◀</div>
+            <div class="dpad-btn dpad-right" id="btn-right">▶</div>
+        </div>
+        <div class="action-container">
+            <div class="action-btn action-b" id="btn-b">B</div>
+            <div class="action-btn" id="btn-a">A</div>
+        </div>
+    </div>
+
+    <!-- Core Game Logic -->
+    <script src="game.js"></script>
+
+    <!-- Offline Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').then((reg) => {
+                    console.log('Offline ServiceWorker registered successfully:', reg.scope);
+                }).catch((err) => {
+                    console.log('ServiceWorker registration skipped (normal for non-https/file protocol):', err);
+                });
+            });
+        }
+
+        function toggleAudio() {
+            if (window.soundEngine) {
+                const muted = window.soundEngine.toggleMute();
+                document.getElementById('mute-btn').innerText = muted ? '🔇 SOUND: OFF' : '🔊 SOUND: ON';
+            }
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen().catch(() => {});
+                }
+            }
+        }
+    </script>
+</body>
+</html>
